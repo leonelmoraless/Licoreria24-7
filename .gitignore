@@ -1,0 +1,40 @@
+# Maven build
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# IDEs
+.idea/
+*.iws
+*.iml
+*.ipr
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache
+.vscode/
+
+# NetBeans/Gradle
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Node
+node_modules/
+
+# Logs y temporales
+*.log
+*.tmp
+
+# Sistema
+.DS_Store
+Thumbs.db
