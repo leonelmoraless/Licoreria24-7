@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- 
+    Interfaz para gestionar los proveedores de la licorería.
+    Permite agregar, editar y eliminar proveedores.
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Proveedores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+
+<body class="proveedores-bg">
+    <div class="d-flex main-wrapper">
+
+        <!-- MENÚ LATERAL -->
+        <nav class="sidebar bg-dark text-white d-flex flex-column p-3">
+            <h4 class="text-center text-white mb-4 sidebar-title">
+                <img th:src="@{/imagenes/logo.jpg}" alt="Logo" class="sidebar-logo"> Licorería 24/7
+            </h4>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item"><a th:href="@{/home}" class="nav-link text-white"><i
+                            class="bi bi-grid-fill me-2"></i> Dashboard</a></li>
+
+                <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                    <a th:href="@{/compras}" class="nav-link text-white"><i class="bi bi-cart-fill me-2"></i> Registrar
+                        Compra</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                    <a th:href="@{/historial-compras}" class="nav-link text-white"><i
+                            class="bi bi-archive-fill me-2"></i> Historial Compras</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
+                    <a th:href="@{/productos}" class="nav-link text-white"><i class="bi bi-box-seam-fill me-2"></i>
+                        Productos</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                    <a th:href="@{/proveedores}" class="nav-link text-white active"><i class="bi bi-truck me-2"></i>
+                        Proveedores</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                    <a th:href="@{/usuario}" class="nav-link text-white"><i class="bi bi-people-fill me-2"></i>
+                        Usuarios</a>
+                </li>
+            </ul>
+            <hr>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-outline-danger w-100"><i class="bi bi-box-arrow-left me-2"></i>
+                    Cerrar Sesión</button>
+            </form>
+        </nav>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="content-area p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Gestión de Proveedores</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalRegistrarProveedor">
+                    <i class="bi bi-plus-circle-fill me-2"></i> Agregar Nuevo
+                </button>
+            </div>
+
+            <!-- MENSAJES -->
+            <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert"
+                th:text="${mensajeExito}"></div>
+            <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show" role="alert"
+                th:text="${mensajeError}"></div>
+
+            <!-- TABLA DE PROVEEDORES -->
+            <div class="table-wrapper">
+                <table class="table table-hover align-middle">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>RUC</th>
+                            <th>Teléfono</th>
+                            <th>Dirección</th>
+                            <th>Correo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="prov : ${listaProveedores}">
+                            <td th:text="${prov.nombre}"></td>
+                            <td th:text="${prov.ruc}"></td>
+                            <td th:text="${prov.telefono}"></td>
+                            <td th:text="${prov.direccion}"></td>
+                            <td th:text="${prov.correo}"></td>
+                            <td>
+                                <!-- Botón Editar: Pasa los datos del proveedor al modal mediante atributos data- -->
+                                <button class="btn btn-sm btn-outline-primary btn-accion btn-editar"
+                                    th:data-id="${prov.idProveedor}" th:data-nombre="${prov.nombre}"
+                                    th:data-ruc="${prov.ruc}" th:data-telefono="${prov.telefono}"
+                                    th:data-direccion="${prov.direccion}" th:data-correo="${prov.correo}"
+                                    data-bs-toggle="modal" data-bs-target="#modalEditarProveedor">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+
+                                <!-- Botón Eliminar -->
+                                <button class="btn btn-sm btn-outline-danger btn-accion btn-eliminar"
+                                    th:data-id="${prov.idProveedor}" th:data-nombre="${prov.nombre}"
+                                    data-bs-toggle="modal" data-bs-target="#modalEliminar">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- MODAL 1: REGISTRAR PROVEEDOR -->
+            <div class="modal fade" id="modalRegistrarProveedor" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Registrar Nuevo Proveedor</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form th:action="@{/proveedores/registrar}" th:object="${nuevoProveedor}" method="post">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="nombre" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="ruc" class="form-label">RUC</label>
+                                    <input type="text" class="form-control" id="ruc" th:field="*{ruc}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="telefono" class="form-label">Teléfono</label>
+                                    <input type="text" class="form-control" id="telefono" th:field="*{telefono}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="direccion" class="form-label">Dirección</label>
+                                    <input type="text" class="form-control" id="direccion" th:field="*{direccion}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="correo" class="form-label">Correo</label>
+                                    <input type="email" class="form-control" id="correo" th:field="*{correo}">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL 2: EDITAR PROVEEDOR -->
+            <div class="modal fade" id="modalEditarProveedor" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Editar Proveedor</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form th:action="@{/proveedores/actualizar}" th:object="${proveedorEditar}" method="post">
+                            <div class="modal-body">
+                                <input type="hidden" id="edit-id" th:field="*{idProveedor}">
+
+                                <div class="mb-3">
+                                    <label for="edit-nombre" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="edit-nombre" th:field="*{nombre}"
+                                        required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-ruc" class="form-label">RUC</label>
+                                    <input type="text" class="form-control" id="edit-ruc" th:field="*{ruc}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-telefono" class="form-label">Teléfono</label>
+                                    <input type="text" class="form-control" id="edit-telefono" th:field="*{telefono}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-direccion" class="form-label">Dirección</label>
+                                    <input type="text" class="form-control" id="edit-direccion" th:field="*{direccion}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-correo" class="form-label">Correo</label>
+                                    <input type="email" class="form-control" id="edit-correo" th:field="*{correo}">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL 3: ELIMINAR PROVEEDOR -->
+            <div class="modal fade" id="modalEliminar" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirmar Eliminación</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>¿Está seguro de que desea eliminar a <strong id="nombreEliminar"></strong>?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <form th:action="@{/proveedores/eliminar}" method="post">
+                                <input type="hidden" id="idEliminar" name="id">
+                                <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/scripts.js}"></script>
+</body>
+
+</html>

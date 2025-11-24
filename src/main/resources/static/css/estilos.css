@@ -1,0 +1,260 @@
+body {
+    background-color: #f8f9fa;
+
+    /* Color de fondo general */
+}
+
+/* botones */
+.boton {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #0d6efd;
+    border: none;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+}
+
+/*botones mouse */
+.boton:hover {
+    background-color: #000000;
+}
+
+.enlaces-boton {
+    margin-top: 1.5rem;
+    text-align: center;
+
+}
+
+/* subrayado */
+.enlaces-boton a {
+    color: #1e90ff;
+    text-decoration: underline;
+}
+
+/* al pasar el mouse */
+.enlaces-boton a:hover {
+    color: #000000;
+}
+
+
+
+/* Fondo de la página Home */
+.home-bg {
+    background-image: url('/imagenes/fondolicoreria.png');
+    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    /* Ajusta a toda el área */
+    background-attachment: fixed;
+    /* Efecto anclado opcional */
+}
+
+
+.compras-bg {
+    background-image: url('/imagenes/fondolicoreria.png');
+    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    /* Ajusta a toda el área */
+    background-attachment: fixed;
+    /* Efecto anclado opcional */
+}
+
+.bg-light {
+    background-image: url('/imagenes/fondolicoreria.png');
+    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    /* Ajusta a toda el área */
+    background-attachment: fixed;
+    /* Efecto anclado opcional */
+}
+
+
+.historial-compras-bg {
+    background-image: url('/imagenes/fondolicoreria.png');
+    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    /* Ajusta a toda el área */
+    background-attachment: fixed;
+    /* Efecto anclado opcional */
+}
+
+.productos-bg {
+    background-image: url('/imagenes/fondolicoreria.png');
+    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    /* Ajusta a toda el área */
+    background-attachment: fixed;
+    /* Efecto anclado opcional */
+}
+
+.proveedores-bg {
+    background-image: url('/imagenes/fondolicoreria.png');
+    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    /* Ajusta a toda el área */
+    background-attachment: fixed;
+    /* Efecto anclado opcional */
+}
+
+
+.usuario-bg {
+    background-image: url('/imagenes/fondolicoreria.png');
+    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    /* Ajusta a toda el área */
+    background-attachment: fixed;
+    /* Efecto anclado opcional */
+}
+
+/* --- Estructura Sidebar + Contenido --- */
+.main-wrapper {
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 280px;
+    /* Ancho de la barra lateral */
+    min-height: 100vh;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+    /* MODIFICA EL COLOR DE LA BARRA LATERAL AQUÍ */
+    background-color: #0d1b2a !important;
+}
+
+.sidebar .sidebar-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.sidebar .sidebar-logo {
+    /* MODIFICA EL LOGO DE LA BARRA LATERAL AQUÍ */
+    /* Apunta a /imagenes/logo.jpg */
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: white;
+    margin-right: 10px;
+    padding: 2px;
+}
+
+.sidebar .nav-link {
+    font-size: 1rem;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    color: #adb5bd;
+    /* Color de texto de enlaces (grisáceo) */
+}
+
+.sidebar .nav-link:hover {
+    background-color: #495057;
+    /* Color al pasar el mouse */
+    color: #ffffff;
+}
+
+.sidebar .nav-link.active {
+    /* MODIFICA EL COLOR DEL ENLACE ACTIVO AQUÍ */
+    background-color: #007bff;
+    /* Azul brillante */
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.sidebar .sidebar-user-info {
+    border-top: 1px solid #f02133;
+    padding-top: 10px;
+    color: #fd2335;
+}
+/* Área de contenido principal (registrar compra, */
+.content-area {
+    border-top: 1px solid #fa3959;
+    flex: 1;
+    overflow-y: auto;
+    color: #ff0909;
+}
+
+/* --- Estilos Dashboard (home.html) --- */
+.dashboard-card {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 12px;
+    border: none;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.07);
+}
+
+.dashboard-card .card-body {
+
+    padding: 2rem;
+    color: #007bff;
+}
+
+.dashboard-card i {
+    /* MODIFICA EL COLOR DE LOS ICONOS DEL DASHBOARD AQUÍ */
+    font-size: 2.5rem;
+    color: #007bff;
+    /* Azul */
+    background-color: #e6f7ff;
+    /* Azul claro */
+    padding: 15px;
+    border-radius: 50%;
+}
+
+/* --- Estilos Tablas (usuario.html, productos.html, etc.) --- */
+.table-wrapper {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.table thead.table-primary th {
+    /* MODIFICA EL COLOR DEL ENCABEZADO DE LA TABLA AQUÍ */
+    background-color: #007bff;
+    /* Azul */
+    color: white;
+    border-bottom: 0;
+}
+
+.table thead th {
+    border-top: none;
+}
+
+.table tbody tr:hover {
+    background-color: #f8faf8;
+}
+
+.btn-accion {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Estilo para el mensaje de bienvenida */
+.mensaje-bienvenida {
+    color: #12ebeb;
+    font-weight: bolder;
+}
