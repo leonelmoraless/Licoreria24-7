@@ -1,260 +1,364 @@
-body {
-    background-color: #f8f9fa;
-
-    /* Color de fondo general */
+/* =========================================
+   1. VARIABLES Y CONFIGURACIÓN BASE
+   ========================================= */
+:root {
+    --color-primary: #ffc107;
+    /* Amarillo Cerveza */
+    --color-accent: #0d6efd;
+    /* Azul Botones */
+    --color-glass-dark: rgba(13, 27, 42, 0.85);
+    /* Tu color base pero transparente */
+    --color-glass-light: rgba(255, 255, 255, 0.1);
+    --border-glass: 1px solid rgba(255, 255, 255, 0.15);
+    --shadow-neon: 0 0 15px rgba(255, 193, 7, 0.4);
+    --text-white: #ff0000;
+    --text-muted: #adb5bd;
 }
 
-/* botones */
-.boton {
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: var(--text-white);
+    background-color: #121212;
+    /* Fondo de respaldo */
+}
+
+/* =========================================
+   2. FONDOS (Consolidado)
+   ========================================= */
+/* Todas estas clases usarán la misma imagen y configuración */
+.home-bg,
+.compras-bg,
+.bg-light,
+.historial-compras-bg,
+.productos-bg,
+.proveedores-bg,
+.usuario-bg {
+    background-image: url('/imagenes/fondolicoreria.png');
+    /* TU IMAGEN */
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: fixed;
+    position: relative;
+}
+
+/* Capa oscura para que el texto se lea bien sobre la imagen */
+.home-bg::before,
+.compras-bg::before,
+.bg-light::before,
+.historial-compras-bg::before,
+.productos-bg::before,
+.proveedores-bg::before,
+.usuario-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    /* Oscurece la imagen un 60% */
+    z-index: 0;
+}
+
+/* Wrapper principal para Flexbox */
+.main-wrapper {
+    position: relative;
+    /* z-index removed to fix Modal/Backdrop stacking issues */
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* =========================================
+   3. SIDEBAR (MENÚ LATERAL VIDRIO)
+   ========================================= */
+.sidebar {
+    width: 280px;
+    min-height: 100vh;
+    flex-shrink: 0;
+
+    /* ESTILO VIDRIO */
+    background: var(--color-glass-dark) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-right: var(--border-glass);
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.sidebar .sidebar-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text-white);
+    padding: 1.5rem 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar .sidebar-logo {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: white;
+    margin-right: 12px;
+    padding: 2px;
+    border: 2px solid var(--color-primary);
+}
+
+/* Enlaces del menú */
+.sidebar .nav-link {
+    font-size: 1rem;
+    padding: 12px 20px;
+    margin-bottom: 8px;
+    border-radius: 0 25px 25px 0;
+    /* Bordes redondeados solo a la derecha */
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.sidebar .nav-link:hover {
+    background-color: var(--color-glass-light);
+    color: var(--text-white);
+    padding-left: 25px;
+    /* Pequeño movimiento a la derecha */
+}
+
+/* Enlace Activo */
+.sidebar .nav-link.active {
+    background: linear-gradient(90deg, rgba(255, 193, 7, 0.2) 0%, transparent 100%);
+    border-left: 4px solid var(--color-primary);
+    color: var(--color-primary) !important;
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+}
+
+.sidebar .sidebar-user-info {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    margin-top: auto;
+    /* Empuja esto al fondo si hay espacio */
+    text-align: center;
+}
+
+/* =========================================
+   4. ÁREA DE CONTENIDO Y TARJETAS
+   ========================================= */
+.content-area {
+    flex-grow: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.mensaje-bienvenida {
+    color: var(--text-white);
+    font-weight: 800;
+    font-size: 2rem;
+    text-shadow: 0 0 10px rgba(13, 235, 235, 0.5);
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--color-primary);
+    display: inline-block;
+}
+
+/* Tarjetas Dashboard */
+.dashboard-card {
+    text-decoration: none;
+    color: white;
+    /* Vidrio oscuro */
+    backdrop-filter: blur(5px);
+    border: var(--border-glass);
+    border-radius: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+    overflow: hidden;
+    height: 100%;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border-color: var(--color-primary);
+}
+
+.dashboard-card .card-body {
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashboard-card img {
+    filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.5));
+    transition: transform 0.4s ease;
+    margin-bottom: 1rem;
+}
+
+.dashboard-card:hover img {
+    transform: scale(1.1) rotate(3deg);
+}
+
+.dashboard-card .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #e90505;
+    margin-top: 10px;
+}
+
+.dashboard-card:hover .card-title {
+    color: var(--color-primary);
+}
+
+/* =========================================
+   5. TABLAS (Contenedor Blanco)
+   ========================================= */
+.table-wrapper {
+    background-color: rgba(255, 255, 255, 0.95);
+    /* Casi blanco sólido para leer bien */
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    color: #333;
+    /* Texto oscuro dentro de la tabla */
+}
+
+.table thead.table-primary th {
+    background-color: var(--color-accent);
+    color: white;
+    border: none;
+}
+
+/* =========================================
+   6. BOTONES (Tus estilos originales + mejoras)
+   ========================================= */
+.boton {
+    width: 35%;
     padding: 0.75rem 1.25rem;
     font-weight: 600;
     color: #ffffff;
-    background-color: #0d6efd;
+    background-color: var(--color-accent);
     border: none;
     border-radius: 10px;
-    transition: background-color 0.3s ease;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-/*botones mouse */
 .boton:hover {
     background-color: #000000;
+    box-shadow: 0 0 15px var(--color-accent);
+    /* Brillo azul al hover */
+    transform: scale(1.02);
 }
 
 .enlaces-boton {
     margin-top: 1.5rem;
     text-align: center;
-
 }
 
-/* subrayado */
 .enlaces-boton a {
-    color: #1e90ff;
+    color: #4dabf7;
+    /* Un azul más claro para que se vea en fondo oscuro */
     text-decoration: underline;
 }
 
-/* al pasar el mouse */
 .enlaces-boton a:hover {
-    color: #000000;
+    color: var(--color-primary);
+    /* Amarillo al hover */
 }
 
+/* =========================================
+   7. RESPONSIVE (CELULAR)
+   ========================================= */
+@media (max-width: 768px) {
+    .main-wrapper {
+        flex-direction: column;
+    }
 
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
 
-/* Fondo de la página Home */
-.home-bg {
-    background-image: url('/imagenes/fondolicoreria.png');
-    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
-    /* Ajusta a toda el área */
-    background-attachment: fixed;
-    /* Efecto anclado opcional */
+    .content-area {
+        padding: 1rem;
+    }
+
+    .boton {
+        width: 100%;
+        /* Botones ancho completo en celular */
+    }
 }
 
-
-.compras-bg {
-    background-image: url('/imagenes/fondolicoreria.png');
-    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
-    /* Ajusta a toda el área */
-    background-attachment: fixed;
-    /* Efecto anclado opcional */
+/* =========================================
+   SIDEBAR COLLAPSED STATE
+   ========================================= */
+.sidebar.collapsed {
+    width: 80px;
 }
 
-.bg-light {
-    background-image: url('/imagenes/fondolicoreria.png');
-    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
-    /* Ajusta a toda el área */
-    background-attachment: fixed;
-    /* Efecto anclado opcional */
+.sidebar.collapsed .sidebar-title span,
+.sidebar.collapsed .nav-link span,
+.sidebar.collapsed .sidebar-user-info,
+.sidebar.collapsed .sidebar-title h4,
+.sidebar.collapsed .btn-toggle-text {
+    display: none;
 }
 
-
-.historial-compras-bg {
-    background-image: url('/imagenes/fondolicoreria.png');
-    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
-    /* Ajusta a toda el área */
-    background-attachment: fixed;
-    /* Efecto anclado opcional */
-}
-
-.productos-bg {
-    background-image: url('/imagenes/fondolicoreria.png');
-    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
-    /* Ajusta a toda el área */
-    background-attachment: fixed;
-    /* Efecto anclado opcional */
-}
-
-.proveedores-bg {
-    background-image: url('/imagenes/fondolicoreria.png');
-    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
-    /* Ajusta a toda el área */
-    background-attachment: fixed;
-    /* Efecto anclado opcional */
-}
-
-
-.usuario-bg {
-    background-image: url('/imagenes/fondolicoreria.png');
-    /* MODIFICA LA IMAGEN DE FONDO AQUÍ */
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
-    /* Ajusta a toda el área */
-    background-attachment: fixed;
-    /* Efecto anclado opcional */
-}
-
-/* --- Estructura Sidebar + Contenido --- */
-.main-wrapper {
-    min-height: 100vh;
-}
-
-.sidebar {
-    width: 280px;
-    /* Ancho de la barra lateral */
-    min-height: 100vh;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-
-    /* MODIFICA EL COLOR DE LA BARRA LATERAL AQUÍ */
-    background-color: #0d1b2a !important;
-}
-
-.sidebar .sidebar-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
+.sidebar.collapsed .sidebar-title {
+    padding: 1.5rem 0.5rem;
     justify-content: center;
-    padding-left: 10px;
-    padding-right: 10px;
 }
 
-.sidebar .sidebar-logo {
-    /* MODIFICA EL LOGO DE LA BARRA LATERAL AQUÍ */
-    /* Apunta a /imagenes/logo.jpg */
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    background-color: white;
-    margin-right: 10px;
-    padding: 2px;
+.sidebar.collapsed .sidebar-logo {
+    margin-right: 0;
 }
 
-.sidebar .nav-link {
-    font-size: 1rem;
-    padding: 10px 15px;
-    border-radius: 8px;
-    margin-bottom: 5px;
-    color: #adb5bd;
-    /* Color de texto de enlaces (grisáceo) */
+.sidebar.collapsed .nav-link {
+    padding: 12px 0;
+    text-align: center;
+    justify-content: center;
+    display: flex;
 }
 
-.sidebar .nav-link:hover {
-    background-color: #495057;
-    /* Color al pasar el mouse */
-    color: #ffffff;
+.sidebar.collapsed .nav-link i {
+    margin-right: 0 !important;
+    font-size: 1.5rem;
 }
 
-.sidebar .nav-link.active {
-    /* MODIFICA EL COLOR DEL ENLACE ACTIVO AQUÍ */
-    background-color: #007bff;
-    /* Azul brillante */
-    font-weight: 500;
-    color: #ffffff;
+/* User Info Icon Mode */
+.sidebar.collapsed .sidebar-user-info {
+    display: block;
+    padding: 10px 0;
 }
 
-.sidebar .sidebar-user-info {
-    border-top: 1px solid #f02133;
-    padding-top: 10px;
-    color: #fd2335;
+.sidebar.collapsed .sidebar-user-info span {
+    display: none;
 }
-/* Área de contenido principal (registrar compra, */
+
+/* Show a small icon or initial when collapsed? Optional. For now hiding text. */
+
+/* Container transition */
 .content-area {
-    border-top: 1px solid #fa3959;
-    flex: 1;
-    overflow-y: auto;
-    color: #ff0909;
+    transition: margin-left 0.3s ease;
 }
 
-/* --- Estilos Dashboard (home.html) --- */
-.dashboard-card {
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border-radius: 12px;
+/* Toggle Button Style */
+.sidebar-toggle-btn {
+    background: transparent;
     border: none;
-}
-
-.dashboard-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.07);
-}
-
-.dashboard-card .card-body {
-
-    padding: 2rem;
-    color: #007bff;
-}
-
-.dashboard-card i {
-    /* MODIFICA EL COLOR DE LOS ICONOS DEL DASHBOARD AQUÍ */
-    font-size: 2.5rem;
-    color: #007bff;
-    /* Azul */
-    background-color: #e6f7ff;
-    /* Azul claro */
-    padding: 15px;
-    border-radius: 50%;
-}
-
-/* --- Estilos Tablas (usuario.html, productos.html, etc.) --- */
-.table-wrapper {
-    background-color: #ffffff;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.table thead.table-primary th {
-    /* MODIFICA EL COLOR DEL ENCABEZADO DE LA TABLA AQUÍ */
-    background-color: #007bff;
-    /* Azul */
-    color: white;
-    border-bottom: 0;
-}
-
-.table thead th {
-    border-top: none;
-}
-
-.table tbody tr:hover {
-    background-color: #f8faf8;
-}
-
-.btn-accion {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-}
-
-/* Estilo para el mensaje de bienvenida */
-.mensaje-bienvenida {
-    color: #12ebeb;
-    font-weight: bolder;
+    color: var(--color-primary);
+    font-size: 1.8rem;
+    cursor: pointer;
+    margin-right: 15px;
+    align-self: center;
+    /* Alineación vertical */
 }
