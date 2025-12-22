@@ -34,7 +34,6 @@ public class DetalleCompra {
     @JoinColumn(name = "id_producto_fk", nullable = false)
     private Producto producto;
 
-
     public DetalleCompra() {
     }
 
@@ -78,6 +77,7 @@ public class DetalleCompra {
         this.subtotal = subtotal;
     }
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public Compra getCompra() {
         return compra;
     }

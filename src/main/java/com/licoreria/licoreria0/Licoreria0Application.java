@@ -22,6 +22,7 @@ public class Licoreria0Application {
     }
 
     @Bean
+    @org.springframework.context.annotation.Profile("!test")
     public CommandLineRunner initData(UsuarioRepositorio usuarioRepositorio, PasswordEncoder passwordEncoder) {
         return args -> {
             String email = "admin@admin.com";

@@ -455,4 +455,9 @@ public class Facade {
 
         usuarioRepositorio.deleteById(idUsuarioEliminar);
     }
+
+    // Setter para inyección manual en tests
+    public void setProductoFactory(ProductoFactory productoFactory) {
+        this.productoFactory = productoFactory;
+    }
 }

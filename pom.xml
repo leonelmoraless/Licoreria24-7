@@ -65,6 +65,20 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Spring Security Test para pruebas de integración -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- H2 Database para pruebas de integración en memoria -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- HERRAMIENTA PARA RECARGA AUTOMÁTICA (Live Reload) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
