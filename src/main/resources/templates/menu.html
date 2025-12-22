@@ -37,66 +37,98 @@
             <h3 style="color: white; margin-top: 20px; text-align: center;">Cargando...</h3>
         </div>
 
-        <nav class="sidebar bg-dark text-white d-flex flex-column p-3" style="min-height: 100vh;">
-            <h4 class="text-center text-white mb-4 sidebar-title">
-                <button id="sidebarToggle" class="sidebar-toggle-btn"><i class="bi bi-list"></i></button>
-                <img th:src="@{/imagenes/logo.jpg}" alt="Logo" class="sidebar-logo"
-                    style="width: 40px; border-radius: 50%;">
-                <span>Licorería 24/7</span>
-            </h4>
+        <nav class="sidebar bg-dark text-white d-flex flex-column" style="min-height: 100vh;">
+            <!-- Toggle Button (Top) -->
+            <div class="sidebar-toggle-container text-center py-3">
+                <button id="sidebarToggle" class="sidebar-toggle-btn">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
 
-            <ul class="nav nav-pills flex-column mb-auto">
+            <!-- Logo & Title -->
+            <div class="sidebar-header text-center mb-4">
+                <img th:src="@{/imagenes/logo.jpg}" alt="Logo" class="sidebar-logo mb-2">
+                <h6 class="sidebar-title mb-0">Licorería 24/7</h6>
+            </div>
+
+            <!-- Navigation Links -->
+            <ul class="nav nav-pills flex-column mb-auto px-2">
                 <li class="nav-item">
-                    <a th:href="@{/home}" class="nav-link text-white">
-                        <i class="bi bi-grid-fill me-2"></i> <span>Dashboard</span>
+                    <a th:href="@{/home}" class="nav-link text-white" data-bs-toggle="tooltip" data-bs-placement="right"
+                        title="Dashboard">
+                        <i class="bi bi-grid-fill"></i>
+                        <span class="sidebar-text">Dashboard</span>
                     </a>
                 </li>
 
                 <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-                    <a th:href="@{/compras}" class="nav-link text-white">
-                        <i class="bi bi-cart-fill me-2"></i> <span>Registrar Compra</span>
+                    <a th:href="@{/compras}" class="nav-link text-white" data-bs-toggle="tooltip"
+                        data-bs-placement="right" title="Registrar Compra">
+                        <i class="bi bi-cart-fill"></i>
+                        <span class="sidebar-text">Registrar Compra</span>
                     </a>
                 </li>
 
                 <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-                    <a th:href="@{/historial-compras}" class="nav-link text-white">
-                        <i class="bi bi-archive-fill me-2"></i> <span>Historial</span>
+                    <a th:href="@{/historial-compras}" class="nav-link text-white" data-bs-toggle="tooltip"
+                        data-bs-placement="right" title="Historial">
+                        <i class="bi bi-archive-fill"></i>
+                        <span class="sidebar-text">Historial</span>
                     </a>
                 </li>
 
                 <li class="nav-item" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
-                    <a th:href="@{/productos}" class="nav-link text-white">
-                        <i class="bi bi-box-seam-fill me-2"></i> <span>Productos</span>
+                    <a th:href="@{/productos}" class="nav-link text-white" data-bs-toggle="tooltip"
+                        data-bs-placement="right" title="Productos">
+                        <i class="bi bi-box-seam-fill"></i>
+                        <span class="sidebar-text">Productos</span>
                     </a>
                 </li>
 
                 <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-                    <a th:href="@{/proveedores}" class="nav-link text-white">
-                        <i class="bi bi-truck me-2"></i> <span>Proveedores</span>
+                    <a th:href="@{/proveedores}" class="nav-link text-white" data-bs-toggle="tooltip"
+                        data-bs-placement="right" title="Proveedores">
+                        <i class="bi bi-truck"></i>
+                        <span class="sidebar-text">Proveedores</span>
                     </a>
                 </li>
+
                 <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-                    <a th:href="@{/usuario}" class="nav-link text-white">
-                        <i class="bi bi-people-fill me-2"></i> <span>Usuarios</span>
+                    <a th:href="@{/usuario}" class="nav-link text-white" data-bs-toggle="tooltip"
+                        data-bs-placement="right" title="Usuarios">
+                        <i class="bi bi-people-fill"></i>
+                        <span class="sidebar-text">Usuarios</span>
                     </a>
                 </li>
             </ul>
-            <hr>
 
-            <div class="sidebar-user-info text-center mb-2">
-                <span sec:authentication="name" class="d-block small fw-bold">Usuario</span>
-                <span sec:authentication="principal.authorities" class="badge bg-warning text-dark">Rol</span>
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- User Info -->
+            <div class="sidebar-user-info text-center mb-2 px-2">
+                <span sec:authentication="name" class="sidebar-text d-block small fw-bold text-truncate">Usuario</span>
+                <span sec:authentication="principal.authorities"
+                    class="sidebar-text badge bg-warning text-dark">Rol</span>
             </div>
 
-            <button class="btn btn-outline-warning w-100 mb-2 btn-sm" data-bs-toggle="modal"
-                data-bs-target="#modalCambiarClave">
-                <i class="bi bi-key-fill"></i> <span class="btn-toggle-text">Clave</span>
-            </button>
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="btn btn-outline-danger w-100 btn-sm">
-                    <i class="bi bi-box-arrow-left"></i> <span class="btn-toggle-text">Salir</span>
+            <!-- Action Buttons -->
+            <div class="sidebar-actions px-2">
+                <button class="btn btn-outline-warning w-100 mb-2 btn-sm sidebar-btn" data-bs-toggle="modal"
+                    data-bs-target="#modalCambiarClave" data-bs-tooltip="tooltip" data-bs-placement="right"
+                    title="Cambiar Clave">
+                    <i class="bi bi-key-fill"></i>
+                    <span class="sidebar-text">Clave</span>
                 </button>
-            </form>
+
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-outline-danger w-100 btn-sm sidebar-btn"
+                        data-bs-toggle="tooltip" data-bs-placement="right" title="Cerrar Sesión">
+                        <i class="bi bi-box-arrow-left"></i>
+                        <span class="sidebar-text">Salir</span>
+                    </button>
+                </form>
+            </div>
         </nav>
 
         <!-- MODAL: CAMBIAR CONTRASEÑA (Incluido en Sidebar para disponibilidad global) -->

@@ -83,6 +83,18 @@ if (password && email) {
 }
 
 // ------------------------------------------------------------------------------------------------
+// APLICAR ESTADO DEL SIDEBAR INMEDIATAMENTE (Antes de que cargue la página)
+// ------------------------------------------------------------------------------------------------
+// Esto previene el "flash" de expansión/contracción al navegar rápido
+(function () {
+    const sidebar = document.querySelector('.sidebar');
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (sidebar && savedState === 'true') {
+        sidebar.classList.add('collapsed');
+    }
+})();
+
+// ------------------------------------------------------------------------------------------------
 // LOADER INTELIGENTE (FAIL FAST, SUCCESS SLOW) Y EFECTO SHAKE
 // ------------------------------------------------------------------------------------------------
 // Se encapsula en una función 'initLoader' que se ejecuta cuando el DOM está listo.
@@ -168,15 +180,65 @@ function initLoader() {
         }
     });
 
-    // --- SIDEBAR TOGGLE ---
+
+
+    // --- SIDEBAR TOGGLE WITH TOOLTIPS AND PERSISTENCE ---
     const toggleBtn = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.sidebar');
-    if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // Evitar comportamientos extraños
-            sidebar.classList.toggle('collapsed');
+
+    // Initialize Bootstrap tooltips
+    let tooltipList = [];
+
+    function initTooltips() {
+        // Dispose existing tooltips
+        tooltipList.forEach(tooltip => tooltip.dispose());
+        tooltipList = [];
+
+        // Only initialize tooltips when sidebar is collapsed
+        if (sidebar && sidebar.classList.contains('collapsed')) {
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl =>
+                new bootstrap.Tooltip(tooltipTriggerEl, {
+                    trigger: 'hover',
+                    delay: { show: 300, hide: 100 }
+                })
+            );
+        }
+    }
+
+    // Highlight active page based on current URL
+    function highlightActivePage() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.sidebar .nav-link');
+
+        navLinks.forEach(link => {
+            const linkPath = new URL(link.href).pathname;
+            if (linkPath === currentPath) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
         });
     }
+
+    if (toggleBtn && sidebar) {
+        // Initialize tooltips and highlight active page on load
+        initTooltips();
+        highlightActivePage();
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            sidebar.classList.toggle('collapsed');
+
+            // Save state to localStorage
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+
+            // Reinitialize tooltips based on new state
+            setTimeout(() => initTooltips(), 350); // Wait for transition
+        });
+    }
+
 
     // --- LOADER EN FORMULARIOS ---
     document.querySelectorAll('form').forEach(form => {
