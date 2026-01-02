@@ -78,6 +78,39 @@
                         </div>
                     </a>
                 </div>
+
+                <!-- Clientes-->
+                <div class="col-md-4" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
+                    <a th:href="@{/clientes}" class="card dashboard-card shadow-sm">
+                        <div class="card-body text-center">
+                            <img th:src="@{/imagenes/clientes.png}" alt="Clientes" width="150" height="150"
+                                class="mb-3">
+                            <h5 class="card-title">Gestión de Clientes</h5>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Registrar Venta -->
+                <div class="col-md-4" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
+                    <a th:href="@{/ventas}" class="card dashboard-card shadow-sm">
+                        <div class="card-body text-center">
+                            <img th:src="@{/imagenes/venta.png}" alt="Registrar Venta" width="150" height="150"
+                                class="mb-3">
+                            <h5 class="card-title">Registrar Venta</h5>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Historial Ventas -->
+                <div class="col-md-4" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
+                    <a th:href="@{/historial-ventas}" class="card dashboard-card shadow-sm">
+                        <div class="card-body text-center">
+                            <img th:src="@{/imagenes/historialVenta.png}" alt="Historial Ventas" width="150"
+                                height="150" class="mb-3">
+                            <h5 class="card-title">Historial Ventas</h5>
+                        </div>
+                    </a>
+                </div>
             </div>
 
         </main>

@@ -1,30 +1,31 @@
-
-/* manejar la interfaz de registro de compras, gestión del carrito de compras,
- * y envío de datos al backend 
- */
-
-
 document.addEventListener("DOMContentLoaded", function () {
-    const selectProveedor = document.getElementById("selectProveedor");
+    const selectCliente = document.getElementById("selectCliente");
+    const selectMetodoPago = document.getElementById("selectMetodoPago");
     const selectProducto = document.getElementById("selectProducto");
-    const inputCantidad = document.getElementById("compraCantidad");
-    const inputPrecio = document.getElementById("compraPrecio");
+    const inputCantidad = document.getElementById("ventaCantidad");
+    const inputPrecio = document.getElementById("ventaPrecio");
     const btnAgregar = document.getElementById("btnAgregarProducto");
-    const btnRegistrar = document.getElementById("btnRegistrarCompra");
-    const carritoBody = document.getElementById("carrito-compras-body");
-    const carritoTotal = document.getElementById("carrito-compras-total");
-    const mensajeCompra = document.getElementById("mensajeCompra");
+    const btnRegistrar = document.getElementById("btnRegistrarVenta");
+    const carritoBody = document.getElementById("carrito-ventas-body");
+    const carritoTotal = document.getElementById("carrito-ventas-total");
+    const mensajeVenta = document.getElementById("mensajeVenta");
 
-    // estado de la aplicación
     let carrito = [];
 
-    //Cambio de proveedor -> Filtrar Productos
-    selectProveedor.addEventListener("change", function () {
-        const idProveedor = parseInt(this.value);
-        filtrarProductosPorProveedor(idProveedor);
-    });
+    // Llenar select de productos al cargar
+    function llenarProductos() {
+        selectProducto.innerHTML = '<option value="">Seleccione un producto...</option>';
+        allProductos.forEach(p => {
+            const option = document.createElement("option");
+            option.value = p.idProducto;
+            option.textContent = p.nombre + " (Stock: " + p.stock + ")";
+            selectProducto.appendChild(option);
+        });
+    }
 
-    // Cambio de producto - rellenar Precio y Autoseleccionar Proveedor
+    llenarProductos();
+
+    // Cambio de producto - rellenar Precio Venta
     selectProducto.addEventListener("change", function () {
         const idProducto = parseInt(this.value);
 
@@ -34,31 +35,37 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const producto = allProductos.find(p => p.idProducto === idProducto);
-        // rellana el precio de la compra y auto-selecciona el proveedor
         if (producto) {
-            inputPrecio.value = producto.precioCompra.toFixed(2);
-            if (selectProveedor.value != producto.proveedorId) {
-                selectProveedor.value = producto.proveedorId;
-            }
+            inputPrecio.value = producto.precioVenta.toFixed(2);
         }
     });
 
-    // agregar producto al carrito
+    // Agregar producto al carrito
     btnAgregar.addEventListener("click", function () {
         const idProducto = parseInt(selectProducto.value);
         const cantidad = parseInt(inputCantidad.value);
         const precio = parseFloat(inputPrecio.value);
 
-        if (!idProducto || !selectProveedor.value || cantidad <= 0 || isNaN(precio) || precio < 0) {
-            alert("Por favor, seleccione un Proveedor y un Producto, y verifique la Cantidad.");
+        if (!idProducto || cantidad <= 0 || isNaN(precio)) {
+            alert("Por favor, seleccione un Producto y verifique la Cantidad.");
             return;
         }
 
         const producto = allProductos.find(p => p.idProducto === idProducto);
 
-        // agregar producto en el carrito, si ya existe se suma 
+        // Validar Stock
+        if (producto.stock < cantidad) {
+            alert("Stock insuficiente. Disponible: " + producto.stock);
+            return;
+        }
+
+        // Validar si ya se agregó y la suma supera el stock
         const itemExistente = carrito.find(item => item.id === idProducto);
         if (itemExistente) {
+            if (producto.stock < (itemExistente.cantidad + cantidad)) {
+                alert("Stock insuficiente para agregar más cantidad. Disponible: " + producto.stock);
+                return;
+            }
             itemExistente.cantidad += cantidad;
             itemExistente.subtotal = itemExistente.cantidad * itemExistente.precio;
         } else {
@@ -80,12 +87,13 @@ document.addEventListener("DOMContentLoaded", function () {
         inputPrecio.value = "";
     });
 
-    // Botón registrar la compra
+    // Registrar Venta
     btnRegistrar.addEventListener("click", function () {
-        const idProveedor = parseInt(selectProveedor.value);
+        const idCliente = parseInt(selectCliente.value);
+        const metodoPago = selectMetodoPago.value;
 
-        if (!idProveedor || carrito.length === 0) {
-            alert("Debe seleccionar un proveedor y agregar al menos un producto.");
+        if (!idCliente || carrito.length === 0) {
+            alert("Debe seleccionar un cliente y agregar al menos un producto.");
             return;
         }
 
@@ -95,19 +103,19 @@ document.addEventListener("DOMContentLoaded", function () {
             precioUnitario: item.precio
         }));
 
-        const datosCompra = {
-            idProveedor: idProveedor,
+        const datosVenta = {
+            idCliente: idCliente,
+            metodoPago: metodoPago,
             items: itemsParaBackend
         };
 
-        mensajeCompra.innerHTML = `<div class="alert alert-info">Procesando compra...</div>`;
+        mensajeVenta.innerHTML = `<div class="alert alert-info">Procesando venta...</div>`;
         btnRegistrar.disabled = true;
 
-        // Envia los datos al backend por la api
-        fetch('/api/compras/registrar', {
+        fetch('/api/ventas/registrar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datosCompra)
+            body: JSON.stringify(datosVenta)
         })
             .then(response => {
                 if (!response.ok) {
@@ -115,24 +123,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 return response.json();
             })
-            .then(compraGuardada => {
-                mensajeCompra.innerHTML = `<div class="alert alert-success">¡Compra #${compraGuardada.idCompra} registrada! Redirigiendo...</div>`;
+            .then(ventaGuardada => {
+                mensajeVenta.innerHTML = `<div class="alert alert-success">¡Venta #${ventaGuardada.idVenta} registrada! Redirigiendo...</div>`;
                 carrito = [];
                 actualizarCarritoUI();
 
                 setTimeout(() => {
-                    window.location.href = '/historial-compras';
+                    window.location.href = '/historial-ventas';
                 }, 1500);
             })
             .catch(error => {
-                mensajeCompra.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+                mensajeVenta.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
             })
             .finally(() => {
                 btnRegistrar.disabled = false;
             });
     });
 
-    // boton de eliminar compra del carrito
+    // Quitar item del carrito
     carritoBody.addEventListener("click", function (e) {
         const botonQuitar = e.target.closest('.btn-quitar-item');
         if (botonQuitar) {
@@ -142,38 +150,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    //filtra los productos según el proveedor seleccionado
-    function filtrarProductosPorProveedor(idProveedor) {
-
-        const seleccionPrevia = selectProducto.value;
-
-
-        selectProducto.innerHTML = '<option value="">Seleccione un producto...</option>';
-        inputPrecio.value = "";
-
-        let productosFiltrados = [];
-
-        if (idProveedor) {
-            productosFiltrados = allProductos.filter(p => p.proveedorId === idProveedor);
-        } else {
-            productosFiltrados = allProductos;
-        }
-
-
-        productosFiltrados.forEach(p => {
-            const option = document.createElement("option");
-            option.value = p.idProducto;
-            option.textContent = p.nombre;
-            selectProducto.appendChild(option);
-        });
-
-        // Restaurar selección previa si es posible
-        if (seleccionPrevia && productosFiltrados.some(p => p.idProducto == seleccionPrevia)) {
-            selectProducto.value = seleccionPrevia;
-        }
-    }
-
-    //actualizar la interfaz del carrito
     function actualizarCarritoUI() {
         carritoBody.innerHTML = "";
         let totalGeneral = 0;
@@ -197,8 +173,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
         carritoTotal.textContent = `$${totalGeneral.toFixed(2)}`;
     }
-
-    filtrarProductosPorProveedor(0);
-
-
 });

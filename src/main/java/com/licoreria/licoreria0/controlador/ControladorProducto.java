@@ -45,7 +45,7 @@ public class ControladorProducto {
             RedirectAttributes attributes) {
         System.out.println("Registrando producto: " + producto.getNombre());
         System.out.println("Precio Compra: " + producto.getPrecioCompra());
-        System.out.println("Precio Venta Recibido: " + producto.getPrecioVenta());
+        System.out.println("Precio Venta: " + producto.getPrecioVenta());
         try {
 
             facade.registrarProducto(producto, idProveedor);

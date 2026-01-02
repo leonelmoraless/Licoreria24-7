@@ -34,6 +34,18 @@ public class Facade {
     @Autowired
     private UsuarioRepositorio usuarioRepositorio;
 
+    @Autowired
+    private ClienteRepositorio clienteRepositorio;
+
+    @Autowired
+    private VentaRepositorio ventaRepositorio;
+
+    @Autowired
+    private DetalleVentaRepositorio detalleVentaRepositorio;
+
+    @Autowired
+    private PagoRepositorio pagoRepositorio;
+
     // esta dependencia es para el patron factory y el servicio de email
 
     @Autowired
@@ -459,5 +471,84 @@ public class Facade {
     // Setter para inyección manual en tests
     public void setProductoFactory(ProductoFactory productoFactory) {
         this.productoFactory = productoFactory;
+    }
+
+    // --------------------------------------------------------------------------------------
+    // GESTIÓN DE CLIENTES
+    // --------------------------------------------------------------------------------------
+
+    public Cliente registrarCliente(Cliente cliente) throws Exception {
+        // Validar si la cédula ya existe
+        if (cliente.getCedula() != null && !cliente.getCedula().isEmpty()) {
+            if (clienteRepositorio.findByCedula(cliente.getCedula()).isPresent()) {
+                throw new Exception("La cédula " + cliente.getCedula() + " ya está registrada.");
+            }
+        }
+        return clienteRepositorio.save(cliente);
+    }
+
+    public List<Cliente> obtenerTodosClientes() {
+        return clienteRepositorio.findAll();
+    }
+
+    // --------------------------------------------------------------------------------------
+    // GESTIÓN DE VENTAS
+    // --------------------------------------------------------------------------------------
+
+    @Transactional
+    public Venta registrarVenta(VentaPeticionDTO peticionVenta) throws Exception {
+        Long idCliente = peticionVenta.getIdCliente();
+        Cliente cliente = clienteRepositorio.findById(idCliente)
+                .orElseThrow(() -> new Exception("Cliente no encontrado con ID: " + idCliente));
+
+        Venta nuevaVenta = new Venta();
+        nuevaVenta.setCliente(cliente);
+        nuevaVenta.setFecha(new Date());
+
+        double totalVenta = 0.0;
+        List<DetalleVenta> detalles = new ArrayList<>();
+        List<VentaPeticionDTO.ItemVentaDTO> items = peticionVenta.getItems();
+
+        for (VentaPeticionDTO.ItemVentaDTO item : items) {
+            Long idProducto = item.getIdProducto();
+            Producto producto = productoRepositorio.findById(idProducto)
+                    .orElseThrow(() -> new Exception("Producto no encontrado: " + idProducto));
+
+            Integer cantidad = item.getCantidad();
+            Double precioUnitario = item.getPrecioUnitario(); // Puede venir del front o del producto
+
+            // VALIDAR Y REDUCIR STOCK
+            int stockActual = producto.getStock();
+            if (stockActual < cantidad) {
+                throw new Exception(
+                        "Stock insuficiente para: " + producto.getNombre() + ". Disponible: " + stockActual);
+            }
+            producto.setStock(stockActual - cantidad);
+            productoRepositorio.save(producto);
+
+            double subtotal = precioUnitario * cantidad;
+            totalVenta += subtotal;
+
+            DetalleVenta detalle = new DetalleVenta(nuevaVenta, producto, cantidad, precioUnitario);
+            detalles.add(detalle);
+        }
+
+        nuevaVenta.setTotal(totalVenta);
+        nuevaVenta.setDetalles(detalles);
+
+        // Guardar Venta (Cascade ALL guardará los detalles)
+        Venta ventaGuardada = ventaRepositorio.save(nuevaVenta);
+
+        // Registrar Pago
+        if (peticionVenta.getMetodoPago() != null && !peticionVenta.getMetodoPago().isEmpty()) {
+            Pago pago = new Pago(ventaGuardada, peticionVenta.getMetodoPago());
+            pagoRepositorio.save(pago);
+        }
+
+        return ventaGuardada;
+    }
+
+    public List<Venta> obtenerTodasVentas() {
+        return ventaRepositorio.findAll();
     }
 }

@@ -50,15 +50,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // Calcular porcentaje de ganancia inicial para editar
-        const precioCompra = parseFloat(document.getElementById('edit-preciocompra').value) || 0;
-        const precioVenta = parseFloat(document.getElementById('edit-precioventa').value) || 0;
+        const inputPrecioCompra = document.getElementById('edit-precioCompra');
+        const inputPrecioVenta = document.getElementById('edit-precioVenta');
         const porcentajeInput = document.getElementById('edit-porcentajeGanancia');
 
-        if (precioCompra > 0 && precioVenta > 0) {
-          const ganancia = ((precioVenta - precioCompra) / precioCompra) * 100;
-          porcentajeInput.value = ganancia.toFixed(2);
-        } else {
-          porcentajeInput.value = '';
+        if (inputPrecioCompra && inputPrecioVenta && porcentajeInput) {
+          const precioCompra = parseFloat(inputPrecioCompra.value) || 0;
+          const precioVenta = parseFloat(inputPrecioVenta.value) || 0;
+
+          if (precioCompra > 0 && precioVenta > 0) {
+            const ganancia = ((precioVenta - precioCompra) / precioCompra) * 100;
+            porcentajeInput.value = ganancia.toFixed(2);
+          } else {
+            porcentajeInput.value = '';
+          }
         }
       }
     });
@@ -88,5 +93,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Inicializar cálculos para registrar y editar
   calcularPrecioVenta('precioCompra', 'porcentajeGanancia', 'precioVenta');
-  calcularPrecioVenta('edit-preciocompra', 'edit-porcentajeGanancia', 'edit-precioventa');
+  calcularPrecioVenta('edit-precioCompra', 'edit-porcentajeGanancia', 'edit-precioVenta');
 });

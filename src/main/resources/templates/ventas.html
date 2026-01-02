@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- 
+    Esta es la interfaz que permite registrar nuevas ventas en el sistema.
+-->
+
+<head th:replace="~{menu :: head-comun('Registrar Venta')}"></head>
+
+<body class="ventas-bg">
+    <div class="d-flex main-wrapper">
+        <!-- SIDEBAR (Incluido desde menu.html) -->
+        <div th:replace="~{menu :: sidebar-completo}"></div>
+
+        <main class="content-area p-4">
+            <h2 class="mb-4">Registrar Nueva Venta</h2>
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Datos de la Venta</h5>
+                </div>
+                <div class="card-body">
+                    <div id="form-venta-js">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="selectCliente" class="form-label">Cliente</label>
+                                <select id="selectCliente" class="form-select">
+                                    <option value="">Seleccione cliente...</option>
+                                    <option th:each="cli : ${listaClientes}" th:value="${cli.idCliente}"
+                                        th:text="${cli.nombre}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="selectMetodoPago" class="form-label">Método de Pago</label>
+                                <select id="selectMetodoPago" class="form-select">
+                                    <option value="Efectivo">Efectivo</option>
+                                    <option value="Tarjeta">Tarjeta</option>
+                                    <option value="Transferencia">Transferencia</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-5">
+                                <label for="selectProducto" class="form-label">Producto</label>
+                                <select id="selectProducto" class="form-select">
+                                    <option value="">Seleccione un producto...</option>
+                                    <!-- Productos se llenan via JS -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row align-items-end">
+                            <div class="col-md-3">
+                                <label for="ventaCantidad" class="form-label">Cantidad</label>
+                                <input type="number" id="ventaCantidad" class="form-control" value="1" min="1" />
+                            </div>
+                            <div class="col-md-3">
+                                <label for="ventaPrecio" class="form-label">Precio Unitario</label>
+                                <input type="number" id="ventaPrecio" class="form-control" step="0.01" min="0"
+                                    placeholder="0.00" readonly />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label d-block">&nbsp;</label>
+                                <button id="btnAgregarProducto" class="btn btn-info text-white w-100">
+                                    <i class="bi bi-plus-circle"></i> Agregar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- carrito de ventas -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Carrito de Venta</h5>
+                    <h6 class="card-subtitle text-muted">Añada productos y finalice la venta.</h6>
+                </div>
+                <div class="card-body">
+                    <div id="mensajeVenta" class="mt-2"></div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unitario</th>
+                                <th>Subtotal</th>
+                                <th>Eliminar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="carrito-ventas-body"></tbody>
+                        <tfoot>
+                            <tr class="fs-5 fw-bold">
+                                <td colspan="3" class="text-end">TOTAL VENTA:</td>
+                                <td id="carrito-ventas-total" colspan="2">$0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <button id="btnRegistrarVenta" class="btn btn-success btn-lg w-100 mt-3">
+                        Finalizar Venta
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const allProductos = /*[[${listaProductos}]]*/[];
+        /*]]>*/
+    </script>
+    <script th:src="@{/js/ventas.js}"></script>
+    <!-- Scripts (Incluidos desde menu.html) -->
+    <div th:replace="~{menu :: scripts-comun}"></div>
+</body>
+
+</html>

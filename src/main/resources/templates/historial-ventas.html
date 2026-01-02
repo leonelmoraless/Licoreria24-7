@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- 
+    Interfaz para ver el historial de ventas.
+-->
+
+<head th:replace="~{menu :: head-comun('Historial de Ventas')}"></head>
+
+<body class="historial-ventas-bg">
+    <div class="d-flex main-wrapper">
+        <!-- SIDEBAR (Incluido desde menu.html) -->
+        <div th:replace="~{menu :: sidebar-completo}"></div>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="content-area p-4">
+            <h2 class="mb-4">Historial de Ventas</h2>
+
+            <div class="table-wrapper">
+                <table class="table table-hover align-middle">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>ID Venta</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <!-- Acciones omitidas por ahora -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Bucle para mostrar cada venta -->
+                        <tr th:each="venta : ${listaVentas}">
+                            <td th:text="${venta.idVenta}"></td>
+                            <td th:text="${venta.cliente?.nombre}"></td>
+                            <!-- Formato de fecha: día/mes/año -->
+                            <td th:text="${#dates.format(venta.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+                            <!-- Formato de moneda -->
+                            <td th:text="${#numbers.formatCurrency(venta.total)}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts (Incluidos desde menu.html) -->
+    <div th:replace="~{menu :: scripts-comun}"></div>
+</body>
+
+</html>
