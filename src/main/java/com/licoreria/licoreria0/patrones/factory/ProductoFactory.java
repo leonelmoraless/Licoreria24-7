@@ -11,19 +11,25 @@ import org.springframework.stereotype.Component;
 public class ProductoFactory {
 
     // metodo para crear un producto nuevo con sus validaciones
-    public Producto crearProducto(String nombre, Double precioCompra, Double precioVenta, Integer stock, Proveedor proveedor) throws Exception {
-        
+    public Producto crearProducto(String nombre, Double precioCompra, Double precioVenta, Integer stock,
+            Proveedor proveedor)
+            throws Exception {
+
         // valida el nombre
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new Exception("El nombre del producto no puede ser nulo o vacío.");
         }
-        // valida el precio  
+        // valida los precios
         if (precioCompra == null || precioCompra <= 0) {
             throw new Exception("El precio de compra debe ser positivo.");
         }
         if (precioVenta == null || precioVenta <= 0) {
             throw new Exception("El precio de venta debe ser positivo.");
         }
+        if (precioVenta < precioCompra) {
+            throw new Exception("El precio de venta no puede ser menor que el precio de compra.");
+        }
+
         // valida el stock
         if (stock == null || stock < 0) {
             throw new Exception("El stock no puede ser negativo.");
@@ -31,10 +37,6 @@ public class ProductoFactory {
         // valida el proveedor
         if (proveedor == null) {
             throw new Exception("El producto debe tener un proveedor asociado.");
-        }
-        // Regla 5 (Lógica de negocio): El precio de venta no puede ser menor al de compra
-        if (precioVenta < precioCompra) {
-            throw new Exception("El precio de venta no puede ser menor al precio de compra.");
         }
 
         // Despues de pasar se crea el producto

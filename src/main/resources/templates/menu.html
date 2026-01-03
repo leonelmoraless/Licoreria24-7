@@ -102,6 +102,30 @@
                 </li>
             </ul>
 
+            <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                <a th:href="@{/ventas}" class="nav-link text-white" data-bs-toggle="tooltip" data-bs-placement="right"
+                    title="Venta">
+                    <i class="bi bi-cart-fill"></i>
+                    <span class="sidebar-text">Venta</span>
+                </a>
+            </li>
+
+            <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                <a th:href="@{/historial-ventas}" class="nav-link text-white" data-bs-toggle="tooltip"
+                    data-bs-placement="right" title="Historial Venta">
+                    <i class="bi bi-archive-fill"></i>
+                    <span class="sidebar-text">Historial Venta</span>
+                </a>
+            </li>
+
+            <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                <a th:href="@{/clientes}" class="nav-link text-white" data-bs-toggle="tooltip" data-bs-placement="right"
+                    title="Clientes">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    <span class="sidebar-text">Clientes</span>
+                </a>
+            </li>
+
             <!-- Divider -->
             <hr class="sidebar-divider">
 

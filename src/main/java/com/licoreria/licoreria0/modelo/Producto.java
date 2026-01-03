@@ -1,6 +1,7 @@
 
 // sirve para los datos de los productos y mapear la tabla productos en la base de datos
 package com.licoreria.licoreria0.modelo;
+
 // mapea bd
 import jakarta.persistence.*;
 
