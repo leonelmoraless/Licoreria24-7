@@ -7,6 +7,10 @@ package com.licoreria.licoreria0.patrones.facade;
 import com.licoreria.licoreria0.modelo.*;
 import com.licoreria.licoreria0.repositorio.*;
 import com.licoreria.licoreria0.patrones.factory.ProductoFactory;
+import com.licoreria.licoreria0.patrones.builder.VentaBuilder;
+import com.licoreria.licoreria0.patrones.strategy.ContextoPago;
+import com.licoreria.licoreria0.patrones.strategy.MetodoPagoStrategy;
+import com.licoreria.licoreria0.patrones.observer.ObservadorVenta;
 import com.licoreria.licoreria0.servicio.ServicioEmail;
 
 // Importaciones del spring para componentes, transacciones y seguridad
@@ -59,6 +63,13 @@ public class Facade {
 
     @Autowired
     private ServicioEmail servicioEmail;
+
+    // --- NUEVAS DEPENDENCIAS PARA PATRONES DE DISEÑO ---
+    @Autowired
+    private ContextoPago contextoPago;
+
+    @Autowired
+    private List<ObservadorVenta> observadoresVentas;
 
     // gestiona los proveedores verificando duplicados y validando datos
     public Proveedor registrarProveedor(Proveedor proveedor) throws Exception {
@@ -138,6 +149,11 @@ public class Facade {
                 throw new Exception(
                         "No se puede eliminar. El proveedor tiene " + cantidadProductos + " productos asociados.");
             }
+        }
+
+        // Verificar si tiene compras asociadas
+        if (compraRepositorio.existsByProveedor_IdProveedor(idProveedor)) {
+            throw new Exception("No se puede eliminar. El proveedor tiene compras registradas.");
         }
         proveedorRepositorio.deleteById(idProveedor);
     }
@@ -491,58 +507,66 @@ public class Facade {
         return clienteRepositorio.findAll();
     }
 
+    public void actualizarCliente(Cliente cliente) throws Exception {
+        if (!clienteRepositorio.existsById(cliente.getIdCliente())) {
+            throw new Exception("Cliente no encontrado.");
+        }
+        clienteRepositorio.save(cliente);
+    }
+
+    public void eliminarCliente(Long idCliente) throws Exception {
+        if (ventaRepositorio.existsByCliente_IdCliente(idCliente)) {
+            throw new Exception("No se puede eliminar. El cliente tiene ventas registradas.");
+        }
+        clienteRepositorio.deleteById(idCliente);
+    }
+
     // --------------------------------------------------------------------------------------
     // GESTIÓN DE VENTAS
     // --------------------------------------------------------------------------------------
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class) // Importante: Se asegura que rollback en cualquier excepcion
+                                                  // (incluidas checked)
     public Venta registrarVenta(VentaPeticionDTO peticionVenta) throws Exception {
+
+        // 1. Obtener Cliente
         Long idCliente = peticionVenta.getIdCliente();
         Cliente cliente = clienteRepositorio.findById(idCliente)
                 .orElseThrow(() -> new Exception("Cliente no encontrado con ID: " + idCliente));
 
-        Venta nuevaVenta = new Venta();
-        nuevaVenta.setCliente(cliente);
-        nuevaVenta.setFecha(new Date());
+        // 2. Usar BUILDER para construir la venta compleja
+        VentaBuilder builder = new VentaBuilder();
+        builder.conCliente(cliente);
 
-        double totalVenta = 0.0;
-        List<DetalleVenta> detalles = new ArrayList<>();
         List<VentaPeticionDTO.ItemVentaDTO> items = peticionVenta.getItems();
-
         for (VentaPeticionDTO.ItemVentaDTO item : items) {
             Long idProducto = item.getIdProducto();
             Producto producto = productoRepositorio.findById(idProducto)
                     .orElseThrow(() -> new Exception("Producto no encontrado: " + idProducto));
 
-            Integer cantidad = item.getCantidad();
-            Double precioUnitario = item.getPrecioUnitario(); // Puede venir del front o del producto
-
-            // VALIDAR Y REDUCIR STOCK
-            int stockActual = producto.getStock();
-            if (stockActual < cantidad) {
-                throw new Exception(
-                        "Stock insuficiente para: " + producto.getNombre() + ". Disponible: " + stockActual);
-            }
-            producto.setStock(stockActual - cantidad);
-            productoRepositorio.save(producto);
-
-            double subtotal = precioUnitario * cantidad;
-            totalVenta += subtotal;
-
-            DetalleVenta detalle = new DetalleVenta(nuevaVenta, producto, cantidad, precioUnitario);
-            detalles.add(detalle);
+            // El builder valida stock (Fail Fast) y calcula subtotales
+            builder.agregarDetalle(producto, item.getCantidad(), item.getPrecioUnitario());
         }
 
-        nuevaVenta.setTotal(totalVenta);
-        nuevaVenta.setDetalles(detalles);
+        Venta nuevaVenta = builder.construir();
 
-        // Guardar Venta (Cascade ALL guardará los detalles)
+        // 3. Guardar Venta (Cascade salvará detalles)
         Venta ventaGuardada = ventaRepositorio.save(nuevaVenta);
 
-        // Registrar Pago
-        if (peticionVenta.getMetodoPago() != null && !peticionVenta.getMetodoPago().isEmpty()) {
-            Pago pago = new Pago(ventaGuardada, peticionVenta.getMetodoPago());
+        // 4. Procesar Pago usando STRATEGY
+        String metodoNombre = peticionVenta.getMetodoPago();
+        MetodoPagoStrategy estrategia = contextoPago.obtenerEstrategia(metodoNombre);
+        estrategia.procesarPago(ventaGuardada, ventaGuardada.getTotal());
+
+        // Guardamos el registro del pago simple para historial
+        if (metodoNombre != null && !metodoNombre.isEmpty()) {
+            Pago pago = new Pago(ventaGuardada, metodoNombre);
             pagoRepositorio.save(pago);
+        }
+
+        // 5. Notificar a OBSERVERS (Actualizar Inventario)
+        for (ObservadorVenta observador : observadoresVentas) {
+            observador.notificarVenta(ventaGuardada);
         }
 
         return ventaGuardada;
@@ -550,5 +574,21 @@ public class Facade {
 
     public List<Venta> obtenerTodasVentas() {
         return ventaRepositorio.findAll();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void eliminarVenta(Long idVenta) throws Exception {
+        Venta venta = ventaRepositorio.findById(idVenta)
+                .orElseThrow(() -> new Exception("Venta no encontrada: " + idVenta));
+
+        // Restaurar Stock
+        for (DetalleVenta detalle : venta.getDetalles()) {
+            Producto producto = detalle.getProducto();
+            // Sumamos la cantidad vendida de nuevo al stock
+            actualizarStockProducto(producto.getIdProducto(), detalle.getCantidad());
+        }
+
+        // Eliminar Venta (Cascade eliminará detalles y pagos)
+        ventaRepositorio.delete(venta);
     }
 }

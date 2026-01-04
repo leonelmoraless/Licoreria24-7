@@ -33,7 +33,7 @@
                                 <select id="selectMetodoPago" class="form-select">
                                     <option value="Efectivo">Efectivo</option>
                                     <option value="Tarjeta">Tarjeta</option>
-                                    <option value="Transferencia">Transferencia</option>
+
                                 </select>
                             </div>
                         </div>
@@ -109,6 +109,56 @@
     <script th:src="@{/js/ventas.js}"></script>
     <!-- Scripts (Incluidos desde menu.html) -->
     <div th:replace="~{menu :: scripts-comun}"></div>
+    <!-- Modal Ticket -->
+    <div class="modal fade" id="modalTicket" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-ticket">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">¡Venta Exitosa! 🛒</h5>
+                </div>
+
+                <div class="modal-body" id="areaImpresion">
+                    <div class="text-center mb-3">
+                        <h4>Licorería 24/7</h4>
+                        <p>Ticket de Venta #<span id="ticketId"></span></p>
+                    </div>
+
+                    <p><strong>Cliente:</strong> <span id="ticketCliente"></span></p>
+                    <p><strong>Fecha:</strong> <span id="ticketFecha"></span></p>
+
+                    <hr>
+
+                    <table class="table table-sm table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Prod.</th>
+                                <th class="text-end">Cant.</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticketItems">
+                        </tbody>
+                    </table>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between fw-bold fs-5">
+                        <span>TOTAL:</span>
+                        <span>$<span id="ticketTotal"></span></span>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="imprimirTicket()">
+                        <i class="fas fa-print"></i> Imprimir
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="cerrarVenta()">
+                        Nueva Venta / Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

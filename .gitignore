@@ -17,6 +17,8 @@ target/
 .springBeans
 .sts4-cache
 .vscode/
+.docs/
+.qodo/
 
 # NetBeans/Gradle
 /nbproject/private/

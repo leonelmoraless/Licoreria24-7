@@ -121,7 +121,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 actualizarCarritoUI();
 
                 setTimeout(() => {
-                    window.location.href = '/historial-compras';
+                    // Recargar página para nueva compra
+                    window.location.reload();
                 }, 1500);
             })
             .catch(error => {

@@ -6,22 +6,57 @@
     /* Amarillo Cerveza */
     --color-accent: #0d6efd;
     /* Azul Botones */
+
+    /* Variables de Tema (Dark por defecto) */
+    --bg-body: #121212;
+    --bg-sidebar: #1a1a1a;
+    --bg-card: rgba(13, 27, 42, 0.85);
+    /* Para glassmorphism si se usa */
+    --text-main: #ffffff;
+    /* Blanco en dark mode */
+    --text-muted: #adb5bd;
+    --border-color: #333333;
+    --sidebar-hover: #252525;
+    --sidebar-active: #2c2c2c;
+    --input-bg: rgba(255, 255, 255, 0.9);
+    --input-text: #1a1a1a;
+
     --color-glass-dark: rgba(13, 27, 42, 0.85);
-    /* Tu color base pero transparente */
     --color-glass-light: rgba(255, 255, 255, 0.1);
     --border-glass: 1px solid rgba(255, 255, 255, 0.15);
     --shadow-neon: 0 0 15px rgba(255, 193, 7, 0.4);
-    --text-white: #ff0000;
-    --text-muted: #adb5bd;
+}
+
+/* TEMA CLARO (Light Mode) */
+:root.light-theme {
+    --bg-body: #f8f9fa;
+    --bg-sidebar: #ffffff;
+    --bg-card: #ffffff;
+    --text-main: #212529;
+    /* Gris oscuro casi negro */
+    --text-muted: #6c757d;
+    --border-color: #dee2e6;
+    --sidebar-hover: #f1f3f5;
+    --sidebar-active: #e9ecef;
+    --input-bg: #ffffff;
+    --input-text: #212529;
+
+    /* Ajustes específicos para tema claro */
+    --color-glass-dark: rgba(255, 255, 255, 0.9);
+    --border-glass: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
-    color: var(--text-white);
-    background-color: #121212;
-    /* Fondo de respaldo */
+    color: var(--text-main);
+    background-color: var(--bg-body);
+}
+
+/* Evitar transiciones al cargar la página */
+.preload * {
+    transition: none !important;
 }
 
 /* =========================================
@@ -58,8 +93,10 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    /* Oscurece la imagen un 60% */
+    background: transparent;
+    /* Eliminado el fondo borroso/oscuro */
+    display: none;
+    /* Ocultamos la capa completamente */
     z-index: 0;
 }
 
@@ -73,127 +110,151 @@ body {
 }
 
 /* =========================================
-   3. SIDEBAR (MENÚ LATERAL VIDRIO)
+   3. SIDEBAR (MENÚ LATERAL DISCRETO)
    ========================================= */
 .sidebar {
-    width: 280px;
+    width: 250px;
     min-height: 100vh;
     flex-shrink: 0;
-    background: var(--color-glass-dark) !important;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-right: var(--border-glass);
-    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
+    transition: width 0.3s ease;
     overflow-x: hidden;
     position: relative;
+    z-index: 1000;
 }
 
 /* Toggle Button Container */
 .sidebar-toggle-container {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border-color);
+    padding: 10px 0;
 }
 
 .sidebar-toggle-btn {
     background: transparent;
     border: none;
-    color: var(--color-primary);
-    font-size: 2rem;
+    color: var(--text-muted);
+    font-size: 1.5rem;
     cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+    transition: color 0.2s ease;
 }
 
 .sidebar-toggle-btn:hover {
-    background: rgba(255, 193, 7, 0.1);
-    transform: scale(1.1);
+    color: var(--text-main);
 }
 
 /* Sidebar Header (Logo + Title) */
 .sidebar-header {
-    padding: 0 1rem;
+    padding: 1rem 1rem 0.5rem 1rem;
     transition: all 0.3s ease;
 }
 
 .sidebar .sidebar-logo {
-    width: 60px;
-    height: 60px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
-    background-color: white;
-    padding: 3px;
-    border: 3px solid var(--color-primary);
-    transition: all 0.3s ease;
+    border: 2px solid var(--border-color);
     object-fit: cover;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin-bottom: 0.5rem;
 }
 
 .sidebar .sidebar-title {
-    color: var(--text-white);
-    font-weight: 700;
-    font-size: 1rem;
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 0.95rem;
     letter-spacing: 0.5px;
-    transition: opacity 0.3s ease;
 }
 
 /* Navigation Links */
 .sidebar .nav-link {
-    font-size: 0.95rem;
-    padding: 12px 16px;
-    margin-bottom: 6px;
-    border-radius: 10px;
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    margin-bottom: 2px;
+    border-radius: 0;
     color: var(--text-muted);
-    transition: all 0.3s ease;
-    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     gap: 12px;
-    position: relative;
+    border-left: 3px solid transparent;
 }
 
 .sidebar .nav-link i {
-    font-size: 1.3rem;
-    min-width: 24px;
+    font-size: 1.1rem;
+    min-width: 20px;
     text-align: center;
-    transition: transform 0.3s ease;
+    color: var(--text-muted);
+    /* Iconos más sutiles */
+    opacity: 0.8;
+    transition: color 0.2s ease;
 }
 
 .sidebar .nav-link:hover {
-    background-color: rgba(255, 193, 7, 0.15);
-    color: var(--text-white);
-    border-left-color: var(--color-primary);
-    transform: translateX(4px);
+    background-color: var(--sidebar-hover);
+    color: var(--text-main);
+    border-left-color: var(--text-muted);
 }
 
 .sidebar .nav-link:hover i {
-    transform: scale(1.15);
+    color: var(--text-main);
+    opacity: 1;
+    transform: none;
 }
 
 .sidebar .nav-link.active {
-    background: linear-gradient(90deg, rgba(255, 193, 7, 0.25) 0%, rgba(255, 193, 7, 0.05) 100%);
+    background-color: var(--sidebar-active);
+    color: var(--text-main) !important;
     border-left-color: var(--color-primary);
-    color: var(--color-primary) !important;
     font-weight: 600;
+}
+
+.sidebar .nav-link.active i {
+    color: var(--color-primary);
+    opacity: 1;
 }
 
 /* Sidebar Divider */
 .sidebar-divider {
-    border-color: rgba(255, 255, 255, 0.1);
-    margin: 1rem 0.5rem;
+    border-color: var(--border-color);
+    margin: 1rem 0;
 }
 
-/* Sidebar Buttons */
+/* Sidebar Buttons (Clave / Salir) */
 .sidebar-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    transition: all 0.3s ease;
+    border-radius: 4px;
+    /* Botones más cuadrados */
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    transition: all 0.2s ease;
 }
 
-.sidebar-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+.sidebar-btn i {
+    font-size: 1rem;
+}
+
+/* Ajuste específico para los botones outline en este tema oscuro */
+.btn-outline-warning {
+    color: #ffc107;
+    border-color: #ffc107;
+}
+
+.btn-outline-warning:hover {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #fff;
 }
 
 /* =========================================
@@ -256,19 +317,21 @@ body {
 
 /* Mensaje de Bienvenida (Dashboard) */
 .mensaje-bienvenida {
-    color: #ffee00;
-    /* Color independiente para el mensaje de bienvenida */
+    color: var(--color-primary);
+    /* Amarillo branding siempre */
     font-weight: 800;
     font-size: 2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* Tarjetas Dashboard */
 .dashboard-card {
     text-decoration: none;
-    color: white;
-    /* Vidrio oscuro */
+    color: var(--text-main);
+    /* Vidrio adaptable */
+    background-color: var(--bg-card);
     backdrop-filter: blur(5px);
-    border: var(--border-glass);
+    border: 1px solid var(--border-color);
     border-radius: 15px;
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
     overflow: hidden;
@@ -277,7 +340,7 @@ body {
 
 .dashboard-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     border-color: var(--color-primary);
 }
 
@@ -290,7 +353,7 @@ body {
 }
 
 .dashboard-card img {
-    filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.3));
     transition: transform 0.4s ease;
     margin-bottom: 1rem;
 }
@@ -302,7 +365,8 @@ body {
 .dashboard-card .card-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #e90505;
+    color: var(--text-main);
+    /* Adaptable */
     margin-top: 10px;
 }
 
@@ -311,87 +375,75 @@ body {
 }
 
 /* =========================================
-   5. TABLAS (Contenedor Blanco)
+   5. TABLAS (Contenedor Adaptable)
    ========================================= */
 .table-wrapper {
-    background-color: rgba(255, 255, 255, 0.95);
-    /* Casi blanco sólido para leer bien */
+    background-color: var(--bg-card);
+    /* Adaptable: Blanco o semitransparente oscuro */
     border-radius: 12px;
     padding: 25px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    color: #333;
-    /* Texto oscuro dentro de la tabla */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
+.table {
+    color: var(--text-main);
+    border-color: var(--border-color);
 }
 
 .table thead.table-primary th {
     background-color: var(--color-accent);
-    color: white;
+    color: #ffffff !important;
+    /* Force white text on blue header */
     border: none;
+}
+
+/* Ensure other table headers contrast */
+.table thead th {
+    color: var(--text-main);
+}
+
+.table tbody tr:hover {
+    background-color: var(--sidebar-hover);
+}
+
+/* Bootstrp overrides for tables in dark mode context logic usually handled by class, but here manual vars */
+.table>:not(caption)>*>* {
+    background-color: transparent;
+    /* Importante para ver el fondo del wrapper */
+    color: var(--text-main);
+    border-bottom-color: var(--border-color);
 }
 
 /* =========================================
    6. BOTONES (Tus estilos originales + mejoras)
    ========================================= */
-.boton {
-    width: 35%;
-    padding: 0.75rem 1.25rem;
-    font-weight: 600;
-    color: #ffffff;
-    background-color: var(--color-accent);
-    border: none;
-    border-radius: 10px;
-    transition: all 0.2s ease;
-    position: relative;
-    z-index: 10;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-.boton:hover {
-    background-color: #000000;
-    box-shadow: 0 0 15px var(--color-accent);
-    /* Brillo azul al hover */
-    transform: scale(1.02);
-}
-
-.enlaces-boton {
-    margin-top: 1.5rem;
-    text-align: center;
-}
-
-.enlaces-boton a {
-    color: #4dabf7;
-    /* Un azul más claro para que se vea en fondo oscuro */
-    text-decoration: underline;
-}
-
-.enlaces-boton a:hover {
-    color: var(--color-primary);
-    /* Amarillo al hover */
-}
+/* ... (unchanged) ... */
 
 /* =========================================
    7. MODALES Y FORMULARIOS (CON IMAGEN DE FONDO)
    ========================================= */
 
-/* Modal Backdrop - Fondo oscuro */
-.modal-backdrop.show {
-    background-color: rgba(0, 0, 0, 0.8) !important;
-}
+/* ... (unchanged) ... */
 
-/* Modal Content - Con imagen de fondo */
+/* Modal Content - Adaptable */
 .modal-content {
+    /* Imagen y configuraciones base compartidas */
+    background-color: var(--bg-card);
     background-image: url('/imagenes/fondoformularios.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    border: 2px solid rgba(255, 193, 7, 0.3);
+    border: 2px solid var(--color-primary);
     border-radius: 16px !important;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     position: relative;
     overflow: hidden;
+    color: var(--text-main);
 }
 
-/* Overlay oscuro para mejorar legibilidad del texto */
+/* Overlay removed/hidden to fix "white blur" */
 .modal-content::before {
     content: '';
     position: absolute;
@@ -399,7 +451,10 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: transparent;
+    /* No background */
+    display: none;
+    /* Hidden */
     z-index: 0;
     pointer-events: none;
 }
@@ -412,19 +467,18 @@ body {
     z-index: 1;
 }
 
-/* Modal Header */
+/* Estilos base del header (heredados si no se sobrescriben) */
 .modal-header {
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.3) 0%, rgba(13, 110, 253, 0.2) 100%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px 16px 0 0 !important;
     padding: 1.25rem 1.5rem;
 }
 
 .modal-title {
-    color: #ffffff;
+    color: var(--text-main);
+    /* Títulos de modal usualmente sobre headers coloreados, así que blanco está bien */
     font-weight: 700;
     font-size: 1.3rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    text-shadow: none;
 }
 
 .btn-close {
@@ -445,21 +499,22 @@ body {
 
 /* Form Labels */
 .modal-body .form-label {
-    color: #ffffff;
+    color: var(--text-main);
     font-weight: 600;
     font-size: 0.95rem;
     margin-bottom: 0.5rem;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    text-shadow: none;
+    /* Quitamos sombras duras en modo claro */
 }
 
 /* Form Controls */
 .modal-body .form-control,
 .modal-body .form-select {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 193, 7, 0.3);
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 0.7rem 1rem;
-    color: #1a1a1a;
+    color: var(--input-text);
     font-size: 0.95rem;
     font-weight: 500;
     transition: all 0.3s ease;
@@ -467,14 +522,15 @@ body {
 
 .modal-body .form-control:focus,
 .modal-body .form-select:focus {
-    background: rgba(255, 255, 255, 1);
+    background: var(--input-bg);
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.25);
     outline: none;
+    color: var(--input-text);
 }
 
 .modal-body .form-control::placeholder {
-    color: rgba(44, 62, 80, 0.6);
+    color: var(--text-muted);
     font-style: italic;
 }
 
@@ -631,4 +687,110 @@ body {
     margin-right: 15px;
     align-self: center;
     /* Alineación vertical */
+}
+
+/* =========================================
+   8. ESTILOS ESPECÍFICOS DE FORMULARIOS (MODALES)
+   ========================================= */
+
+/* --- GENERAL (Base) --- */
+.modal-content {
+    /* Imagen y configuraciones base compartidas */
+    background-image: url('/imagenes/fondoformularios.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 2px solid rgba(255, 193, 7, 0.3);
+    border-radius: 16px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    position: relative;
+    overflow: hidden;
+}
+
+/* --- 8.1 MODAL DE REGISTRO (Agregar Nuevo) --- */
+.modal-registrar .modal-header {
+    /* Encabezado: Azul/Dorado por defecto */
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.3) 0%, rgba(13, 110, 253, 0.2) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-registrar .modal-body {
+    /* Puedes cambiar aquí la fuente solo para los registros */
+    /* font-family: 'TuFuente', sans-serif; */
+}
+
+/* --- 8.2 MODAL DE EDICIÓN (Editar Existente) --- */
+.modal-editar .modal-header {
+    /* Encabezado: Cian/Azul para diferenciar visualmente la edición */
+    background: linear-gradient(135deg, rgba(13, 202, 240, 0.3) 0%, rgba(13, 110, 253, 0.2) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-editar .modal-content {
+    /* Ejemplo: Borde diferente para edición */
+    border-color: rgba(13, 202, 240, 0.5);
+}
+
+/* --- 8.3 MODAL DE ELIMINACIÓN (Confirmar Borrar) --- */
+.modal-eliminar .modal-header {
+    /* Encabezado: Rojo peligro */
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-eliminar .modal-content {
+    /* Ejemplo: Borde rojo para eliminar */
+    border-color: rgba(220, 53, 69, 0.6);
+}
+
+.modal-eliminar .modal-body p {
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+/* --- 8.4 MODAL DE TICKET (Vista Previa) --- */
+.modal-ticket .modal-header {
+    background: #198754;
+    /* Verde éxito */
+    color: white;
+}
+
+.modal-ticket .modal-content {
+    border-color: #198754;
+}
+
+/* =========================================
+   9. OTROS ESTILOS DE IMPRESIÓN
+   ========================================= */
+@media print {
+    /* ... reglas de impresión existentes ... */
+
+    /* Ocultar todo lo que NO sea el modal */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Mostrar solo el contenido del modal (Original y Historial) */
+    #modalTicket,
+    #modalTicket *,
+    #modalTicketHistorial,
+    #modalTicketHistorial * {
+        visibility: visible;
+    }
+
+    /* Posicionar el modal en la hoja */
+    #modalTicket,
+    #modalTicketHistorial {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Ocultar botones del modal en la impresión */
+    .modal-footer {
+        display: none !important;
+    }
 }

@@ -58,7 +58,6 @@
                                 <!-- Botón Editar: Guarda los datos del producto en atributos 'data-' para que JS los lea -->
                                 <button class="btn btn-sm btn-outline-primary btn-editar"
                                     th:data-id="${prod.idProducto}" th:data-nombre="${prod.nombre}"
-                                    th:data-id="${prod.idProducto}" th:data-nombre="${prod.nombre}"
                                     th:data-precio-compra="${prod.precioCompra}"
                                     th:data-precio-venta="${prod.precioVenta}" th:data-stock="${prod.stock}"
                                     th:data-idproveedor="${prod.proveedor?.idProveedor}" data-bs-toggle="modal"
@@ -84,7 +83,7 @@
     <!-- MODAL 1: REGISTRAR NUEVO PRODUCTO (Movido fuera del main-wrapper) -->
     <div class="modal fade" id="modalRegistrarProducto" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
+            <div class="modal-content modal-registrar">
                 <div class="modal-header">
                     <h5 class="modal-title">Registrar Nuevo Producto</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -98,12 +97,17 @@
                         <div class="mb-3">
                             <label for="precioCompra" class="form-label">Precio Compra</label>
                             <input type="number" step="0.01" class="form-control" id="precioCompra"
-                                th:field="*{precioCompra}" required>
+                                th:field="*{precioCompra}" required oninput="calcularPrecioVenta()">
                         </div>
                         <div class="mb-3">
-                            <label for="precioVenta" class="form-label">Precio Venta</label>
-                            <input type="number" step="0.01" class="form-control" id="precioVenta"
-                                th:field="*{precioVenta}" required>
+                            <label for="porcentajeGanancia" class="form-label">Porcentaje de Ganancia (%)</label>
+                            <input type="number" step="1" class="form-control" id="porcentajeGanancia" value="30"
+                                required oninput="calcularPrecioVenta()">
+                        </div>
+                        <div class="mb-3">
+                            <label for="precioVenta" class="form-label">Precio Venta (Calculado)</label>
+                            <input type="number" step="0.01" class="form-control bg-light" id="precioVenta"
+                                th:field="*{precioVenta}" readonly required>
                         </div>
                         <div class="mb-3">
                             <label for="stock" class="form-label">Stock</label>
@@ -146,12 +150,18 @@
                         <div class="mb-3">
                             <label for="edit-precioCompra" class="form-label">Precio Compra</label>
                             <input type="number" step="0.01" class="form-control" id="edit-precioCompra"
-                                th:field="*{precioCompra}" required>
+                                th:field="*{precioCompra}" required oninput="calcularPrecioVentaEdit()">
+                        </div>
+                        <!-- Campo auxiliar para editar porcentaje, no guardado en BD por ahora pero usado para calcular -->
+                        <div class="mb-3">
+                            <label for="edit-porcentajeGanancia" class="form-label">Porcentaje de Ganancia (%)</label>
+                            <input type="number" step="1" class="form-control" id="edit-porcentajeGanancia" value="30"
+                                oninput="calcularPrecioVentaEdit()">
                         </div>
                         <div class="mb-3">
-                            <label for="edit-precioVenta" class="form-label">Precio Venta</label>
-                            <input type="number" step="0.01" class="form-control" id="edit-precioVenta"
-                                th:field="*{precioVenta}" required>
+                            <label for="edit-precioVenta" class="form-label">Precio Venta (Calculado)</label>
+                            <input type="number" step="0.01" class="form-control bg-light" id="edit-precioVenta"
+                                th:field="*{precioVenta}" readonly required>
                         </div>
                         <div class="mb-3">
                             <label for="edit-stock" class="form-label">Stock</label>
@@ -199,6 +209,28 @@
 
     <!-- Scripts (Incluidos desde menu.html) -->
     <div th:replace="~{menu :: scripts-comun}"></div>
+
+    <script>
+        function calcularPrecioVenta() {
+            const compra = parseFloat(document.getElementById('precioCompra').value) || 0;
+            const porcentaje = parseFloat(document.getElementById('porcentajeGanancia').value) || 0;
+
+            if (compra > 0) {
+                const venta = compra + (compra * (porcentaje / 100));
+                document.getElementById('precioVenta').value = venta.toFixed(2);
+            }
+        }
+
+        function calcularPrecioVentaEdit() {
+            const compra = parseFloat(document.getElementById('edit-precioCompra').value) || 0;
+            const porcentaje = parseFloat(document.getElementById('edit-porcentajeGanancia').value) || 0;
+
+            if (compra > 0) {
+                const venta = compra + (compra * (porcentaje / 100));
+                document.getElementById('edit-precioVenta').value = venta.toFixed(2);
+            }
+        }
+    </script>
 </body>
 
 </html>

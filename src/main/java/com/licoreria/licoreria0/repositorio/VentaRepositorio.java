@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface VentaRepositorio extends JpaRepository<Venta, Long> {
     List<Venta> findByCliente_IdCliente(Long idCliente);
+
+    boolean existsByCliente_IdCliente(Long idCliente);
 }

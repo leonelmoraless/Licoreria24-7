@@ -229,6 +229,7 @@ function initLoader() {
         toggleBtn.addEventListener('click', (e) => {
             e.preventDefault();
             sidebar.classList.toggle('collapsed');
+            document.documentElement.classList.toggle('sidebar-collapsed-state'); // Sincronizar para futuras cargas
 
             // Save state to localStorage
             const isCollapsed = sidebar.classList.contains('collapsed');
@@ -236,6 +237,38 @@ function initLoader() {
 
             // Reinitialize tooltips based on new state
             setTimeout(() => initTooltips(), 350); // Wait for transition
+        });
+    }
+
+    // --- THEME TOGGLE LOGIC ---
+    const themeBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+
+    // Function to update icon
+    const updateThemeIcon = (isLight) => {
+        if (!themeIcon) return;
+        if (isLight) {
+            themeIcon.classList.remove('bi-moon-stars-fill');
+            themeIcon.classList.add('bi-sun-fill');
+            themeBtn.style.color = "#ffc107"; // Yellow sun
+        } else {
+            themeIcon.classList.remove('bi-sun-fill');
+            themeIcon.classList.add('bi-moon-stars-fill');
+            themeBtn.style.color = "var(--text-muted)";
+        }
+    }
+
+    // Init Icon based on current state
+    if (document.documentElement.classList.contains('light-theme')) {
+        updateThemeIcon(true);
+    }
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const isLight = document.documentElement.classList.toggle('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            updateThemeIcon(isLight);
         });
     }
 
@@ -258,9 +291,13 @@ function initLoader() {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             })
                 .then(response => {
-                    if (response.url.includes('error')) {
-                        window.desactivarLoader();
-                        errorVisual();
+                    const errorEnUrl = response.url.includes('error');
+                    // Check logic: if response was redirect (ok) but has error param, OR if response not ok
+                    if (errorEnUrl || !response.ok) {
+                        // Force reloading current page to show error message (if backend redirected with error param)
+                        // Or if it's staying on page, deactive loader
+                        window.location.href = response.url;
+                        // Note: The loader init logic on new page load attempts to handle 'error' param
                     } else {
                         const elapsed = Date.now() - startTime;
                         const tiempoEspera = esLogin ? 7500 : 500;
@@ -268,7 +305,10 @@ function initLoader() {
                         setTimeout(() => window.location.href = response.url, remaining);
                     }
                 })
-                .catch(() => window.desactivarLoader());
+                .catch(() => {
+                    window.desactivarLoader();
+                    errorVisual();
+                });
         });
     });
 

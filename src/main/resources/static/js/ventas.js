@@ -123,14 +123,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 return response.json();
             })
-            .then(ventaGuardada => {
-                mensajeVenta.innerHTML = `<div class="alert alert-success">¡Venta #${ventaGuardada.idVenta} registrada! Redirigiendo...</div>`;
+            .then(ventaDTO => {
+                // EN LUGAR DE REDIRIGIR, LLENAMOS EL MODAL
+                llenarTicket(ventaDTO);
+
+                // Mostrar el modal usando Bootstrap
+                const modal = new bootstrap.Modal(document.getElementById('modalTicket'));
+                modal.show();
+
+                // Limpiar el carrito en segundo plano
                 carrito = [];
                 actualizarCarritoUI();
-
-                setTimeout(() => {
-                    window.location.href = '/historial-ventas';
-                }, 1500);
+                mensajeVenta.innerHTML = ""; // Limpiar mensaje de procesando
             })
             .catch(error => {
                 mensajeVenta.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
@@ -139,6 +143,38 @@ document.addEventListener("DOMContentLoaded", function () {
                 btnRegistrar.disabled = false;
             });
     });
+
+    // Función auxiliar para rellenar el HTML del modal
+    function llenarTicket(dto) {
+        document.getElementById('ticketId').innerText = dto.idVenta;
+        document.getElementById('ticketCliente').innerText = dto.nombreCliente;
+        document.getElementById('ticketFecha').innerText = dto.fecha;
+        document.getElementById('ticketTotal').innerText = dto.total.toFixed(2);
+
+        const tbody = document.getElementById('ticketItems');
+        tbody.innerHTML = ''; // Limpiar anteriores
+
+        dto.items.forEach(item => {
+            let fila = `
+                <tr>
+                    <td>${item.producto}</td>
+                    <td class="text-end">${item.cantidad}</td>
+                    <td class="text-end">$${item.subtotal.toFixed(2)}</td>
+                </tr>
+            `;
+            tbody.innerHTML += fila;
+        });
+    }
+
+    // Funciones globales para los botones del modal
+    window.imprimirTicket = function () {
+        window.print();
+    };
+
+    window.cerrarVenta = function () {
+        // Recargamos la página actual para limpiar todo y empezar una venta nueva desde cero
+        window.location.reload();
+    };
 
     // Quitar item del carrito
     carritoBody.addEventListener("click", function (e) {

@@ -19,8 +19,7 @@ public class ControladorCliente {
     public String mostrarPaginaClientes(Model model) {
         model.addAttribute("listaClientes", facade.obtenerTodosClientes());
         model.addAttribute("nuevoCliente", new Cliente());
-        // model.addAttribute("clienteEditar", new Cliente()); // Uncomment when update
-        // is implemented
+        model.addAttribute("clienteEditar", new Cliente());
         return "clientes";
     }
 
@@ -32,6 +31,29 @@ public class ControladorCliente {
             attributes.addFlashAttribute("mensajeExito", "Cliente registrado exitosamente.");
         } catch (Exception e) {
             attributes.addFlashAttribute("mensajeError", "Error al registrar: " + e.getMessage());
+        }
+        return "redirect:/clientes";
+    }
+
+    @PostMapping("/actualizar")
+    public String actualizarCliente(@ModelAttribute("clienteEditar") Cliente cliente,
+            RedirectAttributes attributes) {
+        try {
+            facade.actualizarCliente(cliente);
+            attributes.addFlashAttribute("mensajeExito", "Cliente actualizado exitosamente.");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("mensajeError", "Error al actualizar: " + e.getMessage());
+        }
+        return "redirect:/clientes";
+    }
+
+    @PostMapping("/eliminar")
+    public String eliminarCliente(@RequestParam("id") Long idCliente, RedirectAttributes attributes) {
+        try {
+            facade.eliminarCliente(idCliente);
+            attributes.addFlashAttribute("mensajeExito", "Cliente eliminado exitosamente.");
+        } catch (Exception e) {
+            attributes.addFlashAttribute("mensajeError", "Error al eliminar: " + e.getMessage());
         }
         return "redirect:/clientes";
     }
