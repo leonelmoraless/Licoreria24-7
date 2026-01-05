@@ -42,17 +42,19 @@ public class ConfiguracionSeguridad {
                                                                 "/imagenes/**", "/error")
                                                 .permitAll()
 
-                                                // Pagina del Empleado y del Administrador
-                                                .requestMatchers("/productos/**")
+                                                // Paginas del Empleado y del Administrador
+                                                .requestMatchers("/productos/**", "/compras/**",
+                                                                "/historial-compras/**", "/ventas/**",
+                                                                "/historial-ventas/**", "/detalle_compra/**",
+                                                                "/detalle_venta/**", "/clientes/**")
                                                 .hasAnyAuthority("Empleado", "Administrador")
 
                                                 // Paginas para el Administrador
-                                                .requestMatchers("/usuario/**", "/proveedores/**", "/compras",
-                                                                "/historial-compras")
+                                                .requestMatchers("/usuario/**", "/proveedores/**")
                                                 .hasAuthority("Administrador")
 
                                                 // Pagina de inicio para usuarios autenticados para el home
-                                                //  y cambio de contraseña
+                                                // y cambio de contraseña
                                                 .requestMatchers("/", "/home", "/cambiar-contrasena").authenticated()
 
                                                 // Requiere de autenticacion si una ruta no esta definida

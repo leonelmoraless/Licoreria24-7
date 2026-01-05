@@ -23,11 +23,35 @@
             margin: 150px auto;
             border: 4px solid #020200;
             border-radius: 24px;
+            background-color: rgba(255, 255, 255, 0.95);
+            position: relative;
+            z-index: 10;
+            color: #212529;
+            /* Force dark text */
         }
 
-        .form-control {
+        /* Force specific styles for elements inside the card to ignore theme */
+        .login-card h3,
+        .login-card p,
+        .login-card label,
+        .login-card .form-label {
+            color: #212529 !important;
+        }
+
+        .login-card .text-muted {
+            color: #6c757d !important;
+        }
+
+        .login-card .form-control {
             border: 2px solid #007BFF;
             border-radius: 0px;
+            background-color: #ffffff !important;
+            color: #212529 !important;
+        }
+
+        .login-card .form-control:focus {
+            background-color: #ffffff !important;
+            color: #212529 !important;
         }
     </style>
 </head>

@@ -126,7 +126,7 @@
                     </a>
                 </li>
 
-                <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                <li class="nav-item" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
                     <a th:href="@{/compras}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
                         title="Registrar Compra">
                         <i class="bi bi-cart-fill"></i>
@@ -134,7 +134,8 @@
                     </a>
                 </li>
 
-                <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+
+                <li class="nav-item" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
                     <a th:href="@{/historial-compras}" class="nav-link" data-bs-toggle="tooltip"
                         data-bs-placement="right" title="Historial">
                         <i class="bi bi-archive-fill"></i>
@@ -149,7 +150,7 @@
 
 
 
-                <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                <li class="nav-item" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
                     <a th:href="@{/ventas}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
                         title="Venta">
                         <i class="bi bi-cart-fill"></i>
@@ -157,7 +158,7 @@
                     </a>
                 </li>
 
-                <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                <li class="nav-item" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
                     <a th:href="@{/historial-ventas}" class="nav-link" data-bs-toggle="tooltip"
                         data-bs-placement="right" title="Historial Venta">
                         <i class="bi bi-archive-fill"></i>
@@ -165,7 +166,7 @@
                     </a>
                 </li>
 
-                <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                <li class="nav-item" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
                     <a th:href="@{/clientes}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
                         title="Clientes">
                         <i class="bi bi-bar-chart-fill"></i>
