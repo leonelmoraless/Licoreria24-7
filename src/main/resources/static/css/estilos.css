@@ -69,7 +69,10 @@ body {
 .historial-compras-bg,
 .productos-bg,
 .proveedores-bg,
-.usuario-bg {
+.usuario-bg,
+.ventas-bg,
+.historial-ventas-bg,
+.clientes-bg {
     background-image: url('/imagenes/fondolicoreria.png');
     /* TU IMAGEN */
     background-repeat: no-repeat;
@@ -86,7 +89,10 @@ body {
 .historial-compras-bg::before,
 .productos-bg::before,
 .proveedores-bg::before,
-.usuario-bg::before {
+.usuario-bg::before,
+.ventas-bg::before,
+.historial-ventas-bg::before,
+.clientes-bg::before {
     content: '';
     position: absolute;
     top: 0;
@@ -374,6 +380,24 @@ body {
     color: var(--color-primary);
 }
 
+/* Adaptación de tarjetas genéricas de Bootstrap */
+.card {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-footer {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--border-color);
+}
+
 /* =========================================
    5. TABLAS (Contenedor Adaptable)
    ========================================= */
@@ -419,13 +443,53 @@ body {
 /* =========================================
    6. BOTONES (Tus estilos originales + mejoras)
    ========================================= */
-/* ... (unchanged) ... */
+.boton {
+    width: 35%;
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: var(--color-accent);
+    border: none;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.boton:hover {
+    background-color: #000000;
+    /* Negro al hover */
+    color: #fff;
+    box-shadow: 0 0 15px var(--color-accent);
+    /* Brillo azul al hover */
+    transform: scale(1.02);
+}
+
+.enlaces-boton {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.enlaces-boton a {
+    color: var(--color-accent);
+    /* Un azul más claro para que se vea en fondo oscuro */
+    text-decoration: underline;
+}
+
+.enlaces-boton a:hover {
+    color: var(--color-primary);
+    /* Amarillo al hover */
+}
 
 /* =========================================
    7. MODALES Y FORMULARIOS (CON IMAGEN DE FONDO)
    ========================================= */
 
-/* ... (unchanged) ... */
+/* Modal Backdrop - Fondo oscuro */
+.modal-backdrop.show {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+}
 
 /* Modal Content - Adaptable */
 .modal-content {
@@ -714,10 +778,7 @@ body {
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.modal-registrar .modal-body {
-    /* Puedes cambiar aquí la fuente solo para los registros */
-    /* font-family: 'TuFuente', sans-serif; */
-}
+
 
 /* --- 8.2 MODAL DE EDICIÓN (Editar Existente) --- */
 .modal-editar .modal-header {
@@ -757,6 +818,12 @@ body {
 
 .modal-ticket .modal-content {
     border-color: #198754;
+    background-image: none !important;
+    /* Sin imagen de fondo para nitidez */
+    background-color: var(--bg-body) !important;
+    /* Color sólido plano */
+    box-shadow: none;
+    /* Opcional: quitar sombra si se ve mal */
 }
 
 /* =========================================

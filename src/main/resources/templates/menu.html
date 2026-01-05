@@ -118,11 +118,19 @@
                     </a>
                 </li>
 
+                <li class="nav-item" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
+                    <a th:href="@{/productos}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
+                        title="Productos">
+                        <i class="bi bi-box-seam-fill"></i>
+                        <span class="sidebar-text">Productos</span>
+                    </a>
+                </li>
+
                 <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
                     <a th:href="@{/compras}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
                         title="Registrar Compra">
                         <i class="bi bi-cart-fill"></i>
-                        <span class="sidebar-text">Registrar Compra</span>
+                        <span class="sidebar-text">Compra</span>
                     </a>
                 </li>
 
@@ -130,15 +138,38 @@
                     <a th:href="@{/historial-compras}" class="nav-link" data-bs-toggle="tooltip"
                         data-bs-placement="right" title="Historial">
                         <i class="bi bi-archive-fill"></i>
-                        <span class="sidebar-text">Historial</span>
+                        <span class="sidebar-text">Historial Compras</span>
                     </a>
                 </li>
 
-                <li class="nav-item" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
-                    <a th:href="@{/productos}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
-                        title="Productos">
-                        <i class="bi bi-box-seam-fill"></i>
-                        <span class="sidebar-text">Productos</span>
+
+
+
+
+
+
+
+                <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                    <a th:href="@{/ventas}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
+                        title="Venta">
+                        <i class="bi bi-cart-fill"></i>
+                        <span class="sidebar-text">Venta</span>
+                    </a>
+                </li>
+
+                <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                    <a th:href="@{/historial-ventas}" class="nav-link" data-bs-toggle="tooltip"
+                        data-bs-placement="right" title="Historial Venta">
+                        <i class="bi bi-archive-fill"></i>
+                        <span class="sidebar-text">Historial Venta</span>
+                    </a>
+                </li>
+
+                <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                    <a th:href="@{/clientes}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
+                        title="Clientes">
+                        <i class="bi bi-bar-chart-fill"></i>
+                        <span class="sidebar-text">Clientes</span>
                     </a>
                 </li>
 
@@ -158,30 +189,6 @@
                     </a>
                 </li>
             </ul>
-
-            <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-                <a th:href="@{/ventas}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
-                    title="Venta">
-                    <i class="bi bi-cart-fill"></i>
-                    <span class="sidebar-text">Venta</span>
-                </a>
-            </li>
-
-            <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-                <a th:href="@{/historial-ventas}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
-                    title="Historial Venta">
-                    <i class="bi bi-archive-fill"></i>
-                    <span class="sidebar-text">Historial Venta</span>
-                </a>
-            </li>
-
-            <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-                <a th:href="@{/clientes}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
-                    title="Clientes">
-                    <i class="bi bi-bar-chart-fill"></i>
-                    <span class="sidebar-text">Clientes</span>
-                </a>
-            </li>
 
             <!-- Divider -->
             <hr class="sidebar-divider">
