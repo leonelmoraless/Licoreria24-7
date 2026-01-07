@@ -19,6 +19,7 @@ target/
 .vscode/
 .docs/
 .qodo/
+.application.properties
 
 # NetBeans/Gradle
 /nbproject/private/
