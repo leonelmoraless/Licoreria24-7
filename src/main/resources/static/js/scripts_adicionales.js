@@ -3,6 +3,150 @@ const password = document.querySelector('#password');
 const boton = document.querySelector('.boton');
 const noticia = document.querySelector('.noticia');
 
+// Validación simple de campos para habilitar/deshabilitar botón
+if (boton) {
+    // Si estamos en login (hay email y password), validamos
+    if (email && password) {
+        validarLogin(); // Validar estado inicial
+        email.addEventListener('input', validarLogin);
+        password.addEventListener('input', validarLogin);
+    }
+    // Si solo hay email (recuperar contraseña)
+    else if (email) {
+        validarSoloCorreo();
+        email.addEventListener('input', validarSoloCorreo);
+    }
+}
+
+function validarLogin() {
+    if (!email || !password) return;
+    const vacio = email.value.trim() === '' || password.value.trim() === '';
+    boton.disabled = vacio;
+}
+
+function validarSoloCorreo() {
+    if (!email) return;
+    const vacio = email.value.trim() === '';
+    boton.disabled = vacio;
+}
+
+
+// ------------------------------------------------------------------------------------------------
+// APLICAR ESTADO DEL SIDEBAR INMEDIATAMENTE (Antes de que cargue la página)
+// ------------------------------------------------------------------------------------------------
+(function () {
+    const sidebar = document.querySelector('.sidebar');
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (sidebar && savedState === 'true') {
+        sidebar.classList.add('collapsed');
+    }
+})();
+
+// ------------------------------------------------------------------------------------------------
+// LOADER SOLAMENTE PARA LOGIN
+// ------------------------------------------------------------------------------------------------
+function initLoader() {
+
+    const loader = document.getElementById('loader');
+    const loaderText = loader ? loader.querySelector('h3') : null;
+
+    // --- FUNCIÓN ACTIVAR LOADER ---
+    window.activarLoader = function () {
+        if (!loader) return;
+        loader.style.display = 'flex';
+        if (loaderText) loaderText.textContent = "Ingresando...";
+    }
+
+    window.desactivarLoader = function () {
+        if (!loader) return;
+        loader.style.display = 'none';
+        if (loaderText) loaderText.textContent = "Cargando...";
+    }
+
+    // --- SIDEBAR TOGGLE WITH TOOLTIPS AND PERSISTENCE ---
+    const toggleBtn = document.getElementById('sidebarToggle');
+    const sidebar = document.querySelector('.sidebar');
+    let tooltipList = [];
+
+    function initTooltips() {
+        tooltipList.forEach(tooltip => tooltip.dispose());
+        tooltipList = [];
+        if (sidebar && sidebar.classList.contains('collapsed')) {
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl =>
+                new bootstrap.Tooltip(tooltipTriggerEl, {
+                    trigger: 'hover',
+                    delay: { show: 300, hide: 100 }
+                })
+            );
+        }
+    }
+
+    // Highlight active page based on current URL
+    function highlightActivePage() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.sidebar .nav-link');
+
+        navLinks.forEach(link => {
+            const linkPath = new URL(link.href).pathname;
+            if (linkPath === currentPath) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    }
+
+    if (toggleBtn && sidebar) {
+        initTooltips();
+        highlightActivePage();
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            sidebar.classList.toggle('collapsed');
+            document.documentElement.classList.toggle('sidebar-collapsed-state');
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            setTimeout(() => initTooltips(), 350);
+        });
+    }
+
+    // --- LOADER SOLO EN FORMULARIO DE LOGIN ---
+    const loginForm = document.querySelector('form[action*="login"]');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function (event) {
+            // Activar loader solo al hacer submit en login
+            window.activarLoader();
+            // No prevenimos el submit por defecto para que Spring Security maneje la redirección,
+            // pero el loader se mostrará visualmente hasta que la página cambie.
+        });
+    }
+
+    // Si hay parámetros de error en la URL (login fallido), aseguramos que el loader esté oculto
+    // y hacemos un pequeño shake visual si es login
+    if (new URLSearchParams(window.location.search).has('error')) {
+        if (loginForm) {
+            document.body.style.animation = 'shake 0.5s';
+            document.body.style.color = 'red';
+            setTimeout(() => {
+                document.body.style.animation = '';
+                document.body.style.color = '';
+            }, 500);
+        }
+        window.desactivarLoader();
+    }
+
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) window.desactivarLoader();
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLoader);
+} else {
+    initLoader();
+}
+
 if (boton) {
     boton.disabled = true;
     boton.addEventListener('mouseover', movimientoBoton);
@@ -180,6 +324,60 @@ function initLoader() {
         }
     });
 
+    // --- FUNCIÓN GLOBAL PARA MOSTRAR TICKET UNIVERSAL ---
+    window.mostrarTicketUniversal = function (dto, callbackCierre) {
+        // 1. Llenar datos
+        document.getElementById('ticketIdUniversal').textContent = dto.idVenta;
+        document.getElementById('ticketClienteUniversal').textContent = dto.nombreCliente;
+        document.getElementById('ticketFechaUniversal').textContent = dto.fecha;
+        // El DTO puede traer String formateado o number (del backend viene number usualmente)
+        // Aseguramos formato $
+        let totalStr = dto.total;
+        if (typeof dto.total === 'number') {
+            totalStr = "$" + dto.total.toFixed(2);
+        } else if (!String(dto.total).includes('$')) {
+            totalStr = "$" + dto.total;
+        }
+        document.getElementById('ticketTotalUniversal').textContent = totalStr;
+
+        // 2. Llenar tabla
+        const tbody = document.getElementById('ticketItemsUniversal');
+        tbody.innerHTML = '';
+
+        dto.items.forEach(item => {
+            const precioUnit = (typeof item.precioUnitario === 'number') ? item.precioUnitario.toFixed(2) : item.precioUnitario;
+            const subtotal = (typeof item.subtotal === 'number') ? item.subtotal.toFixed(2) : item.subtotal;
+
+            let fila = `
+                <tr>
+                    <td>${item.producto}</td>
+                    <td>${item.cantidad}</td>
+                    <td>$${precioUnit}</td>
+                    <td>$${subtotal}</td>
+                </tr>
+            `;
+            tbody.innerHTML += fila;
+        });
+
+        // 3. Configurar comportamiento al cerrar
+        const btnCerrar = document.getElementById('btnCerrarTicketUniversal');
+        // Clonamos el botón para quitar listeners anteriores y evitar acumulaciones
+        const nuevoBtn = btnCerrar.cloneNode(true);
+        btnCerrar.parentNode.replaceChild(nuevoBtn, btnCerrar);
+
+        nuevoBtn.addEventListener('click', function () {
+            // Cerrar el modal bootstrap
+            // (Ya lo hace data-bs-dismiss, pero si hay callback extra...)
+            if (callbackCierre) {
+                callbackCierre();
+            }
+        });
+
+        // 4. Mostrar Modal
+        const modalEl = document.getElementById('modalTicketUniversal');
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    };
 
 
     // --- SIDEBAR TOGGLE WITH TOOLTIPS AND PERSISTENCE ---

@@ -200,14 +200,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json();
             })
             .then(ventaDTO => {
-                // EN LUGAR DE REDIRIGIR, LLENAMOS EL MODAL
-                llenarTicket(ventaDTO);
+                // USAR TICKET UNIVERSAL
+                // Pasamos callback para recargar página al cerrar
+                window.mostrarTicketUniversal(ventaDTO, function () {
+                    window.location.reload();
+                });
 
-                // Mostrar el modal usando Bootstrap
-                const modal = new bootstrap.Modal(document.getElementById('modalTicket'));
-                modal.show();
-
-                // Limpiar el carrito en segundo plano
+                // Limpiar el carrito en segundo plano (aunque reload lo hará)
                 carrito = [];
                 comprobanteBase64 = null;
                 actualizarCarritoUI();
@@ -221,6 +220,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 
+ main
     // Función auxiliar para rellenar el HTML del modal
     function llenarTicket(dto) {
         document.getElementById('ticketId').innerText = dto.idVenta;
@@ -285,6 +285,11 @@ document.addEventListener("DOMContentLoaded", function () {
     window.cerrarVenta = function () {
         window.location.reload();
     };
+
+    // (Funcion llenarTicket removida - ya no se usa)
+
+    // Quitar item del carrito
+ main
 
     // Quitar item del carrito
     carritoBody.addEventListener("click", function (e) {

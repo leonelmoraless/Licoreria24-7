@@ -1,49 +1,42 @@
 /* =========================================
    1. VARIABLES Y CONFIGURACIÓN BASE
    ========================================= */
+/* =========================================
+   1. VARIABLES Y CONFIGURACIÓN BASE (Solo Tema Claro)
+   ========================================= */
 :root {
-    --color-primary: #ffc107;
-    /* Amarillo Cerveza */
-    --color-accent: #0d6efd;
-    /* Azul Botones */
+    --color-primary: #d4af37;
+    /* Dorado Metálico Premium */
+    --color-accent: #b8860b;
+    /* Dark Goldenrod para botones */
 
-    /* Variables de Tema (Dark por defecto) */
-    --bg-body: #121212;
-    --bg-sidebar: #1a1a1a;
-    --bg-card: rgba(13, 27, 42, 0.85);
-    /* Para glassmorphism si se usa */
-    --text-main: #ffffff;
-    /* Blanco en dark mode */
+    /* Variables de Tema (Dark Premium) */
+    --bg-body: #000000;
+    /* Fondo Negro Absoluto */
+    --bg-sidebar: #050505;
+    /* Casi negro */
+    --bg-card: #121212;
+    /* Gris muy oscuro */
+
+    --text-main: #f8f9fa;
+    /* Blanco hueso para lectura */
     --text-muted: #adb5bd;
+    /* Gris claro */
+
     --border-color: #333333;
-    --sidebar-hover: #252525;
-    --sidebar-active: #2c2c2c;
-    --input-bg: rgba(255, 255, 255, 0.9);
-    --input-text: #1a1a1a;
+    /* Bordes sutiles */
+    --sidebar-hover: #1a1a1a;
+    --sidebar-active: #252525;
 
-    --color-glass-dark: rgba(13, 27, 42, 0.85);
-    --color-glass-light: rgba(255, 255, 255, 0.1);
-    --border-glass: 1px solid rgba(255, 255, 255, 0.15);
-    --shadow-neon: 0 0 15px rgba(255, 193, 7, 0.4);
-}
+    --input-bg: #1a1a1a;
+    --input-text: #ffffff;
 
-/* TEMA CLARO (Light Mode) */
-:root.light-theme {
-    --bg-body: #f8f9fa;
-    --bg-sidebar: #ffffff;
-    --bg-card: #ffffff;
-    --text-main: #212529;
-    /* Gris oscuro casi negro */
-    --text-muted: #6c757d;
-    --border-color: #dee2e6;
-    --sidebar-hover: #f1f3f5;
-    --sidebar-active: #e9ecef;
-    --input-bg: #ffffff;
-    --input-text: #212529;
-
-    /* Ajustes específicos para tema claro */
-    --color-glass-dark: rgba(255, 255, 255, 0.9);
-    --border-glass: 1px solid rgba(0, 0, 0, 0.1);
+    /* Ajustes específicos */
+    --color-glass-dark: rgba(0, 0, 0, 0.9);
+    --border-glass: 1px solid rgba(212, 175, 55, 0.3);
+    /* Borde dorado sutil */
+    --shadow-neon: 0 0 15px rgba(212, 175, 55, 0.4);
+    /* Brillo dorado */
 }
 
 body {
@@ -419,10 +412,11 @@ body {
 }
 
 .table thead.table-primary th {
-    background-color: var(--color-accent);
-    color: #ffffff !important;
-    /* Force white text on blue header */
-    border: none;
+    background-color: #1a1a1a;
+    /* Fondo oscuro para header */
+    color: var(--color-primary) !important;
+    /* Texto Dorado */
+    border-bottom: 2px solid var(--color-primary);
 }
 
 /* Ensure other table headers contrast */
@@ -459,12 +453,29 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-.boton:hover {
-    background-color: #000000;
+/* Restaurar botón de login al estilo original (Azul/Negro) */
+.login-card .boton {
+    background-color: #0d6efd !important;
+    /* Azul original */
+    color: #ffffff !important;
+    box-shadow: 0 4px 6px rgba(13, 110, 253, 0.4);
+}
+
+.login-card .boton:hover {
+    background-color: #000000 !important;
     /* Negro al hover */
-    color: #fff;
-    box-shadow: 0 0 15px var(--color-accent);
-    /* Brillo azul al hover */
+    color: #ffffff !important;
+    box-shadow: 0 0 15px #0d6efd !important;
+    transform: scale(1.02);
+}
+
+.boton:hover {
+    background-color: var(--color-primary);
+    /* Dorado al hover */
+    color: #000;
+    /* Texto negro para contraste en dorado */
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+    /* Brillo dorado intenso */
     transform: scale(1.02);
 }
 
@@ -811,22 +822,46 @@ body {
     text-align: center;
 }
 
-/* --- 8.4 MODAL DE TICKET (Vista Previa) --- */
-.modal-ticket .modal-header {
-    background: #198754;
-    /* Verde éxito */
-    color: white;
+/* --- 8.4 MODAL DE TICKET (Vista Previa - Fondo Blanco) --- */
+.modal-ticket-white {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    /* Quitar fondo licorería */
+    color: #000000 !important;
+    /* Texto negro forzoso */
+    border: 4px solid #000000 !important;
+    /* Borde simple y elegante */
 }
 
-.modal-ticket .modal-content {
-    border-color: #198754;
-    background-image: none !important;
-    /* Sin imagen de fondo para nitidez */
-    background-color: var(--bg-body) !important;
-    /* Color sólido plano */
-    box-shadow: none;
-    /* Opcional: quitar sombra si se ve mal */
+/* Forzar color negro en todos los elementos hijos del ticket */
+.modal-ticket-white h4,
+.modal-ticket-white h5,
+.modal-ticket-white p,
+.modal-ticket-white span,
+.modal-ticket-white strong,
+.modal-ticket-white td,
+.modal-ticket-white th,
+.modal-ticket-white .table {
+    color: #000000 !important;
 }
+
+/* Header del modal ticket (simple) */
+.modal-ticket-white .modal-header {
+    background: #ffffff !important;
+    border-bottom: 2px solid #000000 !important;
+}
+
+.modal-ticket-white .modal-title {
+    color: #000000 !important;
+}
+
+.modal-ticket-white .btn-close {
+    filter: none !important;
+    /* Restaurar botón de cierre estándar */
+    opacity: 0.5;
+}
+
+
 
 /* =========================================
    9. OTROS ESTILOS DE IMPRESIÓN
@@ -843,13 +878,16 @@ body {
     #modalTicket,
     #modalTicket *,
     #modalTicketHistorial,
-    #modalTicketHistorial * {
+    #modalTicketHistorial *,
+    #modalTicketUniversal,
+    #modalTicketUniversal * {
         visibility: visible;
     }
 
     /* Posicionar el modal en la hoja */
     #modalTicket,
-    #modalTicketHistorial {
+    #modalTicketHistorial,
+    #modalTicketUniversal {
         position: absolute;
         left: 0;
         top: 0;

@@ -147,6 +147,7 @@
     <script th:src="@{/js/ventas.js}"></script>
     <!-- Scripts (Incluidos desde menu.html) -->
     <div th:replace="~{menu :: scripts-comun}"></div>
+ main
     <!-- Modal Ticket -->
     <div class="modal fade" id="modalTicket" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
@@ -222,6 +223,10 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Ticket Universal -->
+    <div th:replace="~{menu :: modal-ticket-universal}"></div>
+ main
 </body>
 
 </html>

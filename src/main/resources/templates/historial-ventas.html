@@ -78,6 +78,7 @@
         </div>
     </div>
 
+ main
     <!-- MODAL VISTA PREVIA TICKET (Reutilizado/Adaptado) -->
     <div class="modal fade" id="modalTicketHistorial" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
@@ -160,6 +161,10 @@
             </div>
         </div>
     </div>
+=======
+    <!-- MODAL VISTA PREVIA TICKET UNIVERSAL -->
+    <div th:replace="~{menu :: modal-ticket-universal}"></div>
+main
 
     <!-- Scripts (Incluidos desde menu.html) -->
     <div th:replace="~{menu :: scripts-comun}"></div>
@@ -167,13 +172,16 @@
     <script>
         // Función para cargar y mostrar el ticket desde el historial
         function verTicket(idVenta) {
+ main
 
+ main
             fetch(`/api/ventas/${idVenta}`)
                 .then(response => {
                     if (!response.ok) throw new Error("Error al obtener venta");
                     return response.json();
                 })
                 .then(venta => {
+ main
                     // Llenar Modal
                     document.getElementById('ticketId').textContent = venta.idVenta;
                     document.getElementById('ticketFecha').textContent = new Date(venta.fecha).toLocaleString();
@@ -222,16 +230,14 @@
                     // Abrir Modal
                     const modal = new bootstrap.Modal(document.getElementById('modalTicketHistorial'));
                     modal.show();
+
+                    // USAR TICKET UNIVERSAL (Sin callback de cierre porque solo estamos viendo)
+                    window.mostrarTicketUniversal(venta);
+             main
                 })
                 .catch(err => {
                     alert("Error: " + err.message);
                 });
-        }
-
-        function imprimirTicketHistorial() {
-            // Clona el contenido del modal para imprimir solo eso o usa estilos CSS print
-            // Como ya configuramos CSS @media print para modales, solo llamamos print
-            window.print();
         }
     </script>
 </body>
