@@ -17,6 +17,19 @@
                         <h2 class="mb-3">
                             <i class="bi bi-graph-up me-2"></i>Análisis de Ventas y Ganancias
                         </h2>
+                        <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show"
+                            role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <span th:text="${mensajeExito}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show"
+                            role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <span th:text="${mensajeError}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
                         <p class="text-muted">Visualiza los productos más vendidos y el porcentaje de ganancias por
                             período</p>
                     </div>

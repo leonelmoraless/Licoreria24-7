@@ -21,21 +21,12 @@ public class Venta {
     @Temporal(TemporalType.TIMESTAMP)
     private Date fecha;
 
-    @Column(name = "subtotal")
-    private Double subtotal;
-
-    @Column(name = "iva")
-    private Double iva = 15.0;
-
-    @Column(name = "monto_iva")
-    private Double montoIva = 0.0;
-
     private Double total;
 
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleVenta> detalles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Pago> pagos = new ArrayList<>();
 
     public Venta() {
@@ -69,30 +60,6 @@ public class Venta {
 
     public void setFecha(Date fecha) {
         this.fecha = fecha;
-    }
-
-    public Double getSubtotal() {
-        return subtotal;
-    }
-
-    public void setSubtotal(Double subtotal) {
-        this.subtotal = subtotal;
-    }
-
-    public Double getIva() {
-        return iva != null ? iva : 15.0;
-    }
-
-    public void setIva(Double iva) {
-        this.iva = iva != null ? iva : 15.0;
-    }
-
-    public Double getMontoIva() {
-        return montoIva != null ? montoIva : 0.0;
-    }
-
-    public void setMontoIva(Double montoIva) {
-        this.montoIva = montoIva != null ? montoIva : 0.0;
     }
 
     public Double getTotal() {

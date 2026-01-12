@@ -12,8 +12,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnAgregar = document.getElementById("btnAgregarProducto");
     const btnRegistrar = document.getElementById("btnRegistrarCompra");
     const carritoBody = document.getElementById("carrito-compras-body");
-    const carritoTotal = document.getElementById("carrito-compras-total");
     const mensajeCompra = document.getElementById("mensajeCompra");
+
+    function mostrarAlerta(mensaje, tipo = 'danger') {
+        const icono = tipo === 'success' ? 'bi-check-circle-fill' : (tipo === 'info' ? 'bi-info-circle-fill' : 'bi-exclamation-triangle-fill');
+        mensajeCompra.innerHTML = `<div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+            <i class="bi ${icono} me-2"></i>
+            <span>${mensaje}</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
+        // Auto-scroll al mensaje
+        mensajeCompra.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
     // estado de la aplicación
     let carrito = [];
@@ -50,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const precio = parseFloat(inputPrecio.value);
 
         if (!idProducto || !selectProveedor.value || cantidad <= 0 || isNaN(precio) || precio < 0) {
-            alert("Por favor, seleccione un Proveedor y un Producto, y verifique la Cantidad.");
+            mostrarAlerta("Por favor, seleccione un Proveedor y un Producto, y verifique la Cantidad.");
             return;
         }
 
@@ -85,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const idProveedor = parseInt(selectProveedor.value);
 
         if (!idProveedor || carrito.length === 0) {
-            alert("Debe seleccionar un proveedor y agregar al menos un producto.");
+            mostrarAlerta("Debe seleccionar un proveedor y agregar al menos un producto.");
             return;
         }
 

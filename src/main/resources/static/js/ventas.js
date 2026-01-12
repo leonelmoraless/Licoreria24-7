@@ -12,8 +12,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const carritoSubtotal = document.getElementById("carrito-subtotal");
     const carritoIva = document.getElementById("carrito-iva");
     const carritoTotal = document.getElementById("carrito-ventas-total");
-    const ivaPercentSpan = document.getElementById("ivaPercent");
     const mensajeVenta = document.getElementById("mensajeVenta");
+
+    function mostrarAlerta(mensaje, tipo = 'danger') {
+        const icono = tipo === 'success' ? 'bi-check-circle-fill' : (tipo === 'info' ? 'bi-info-circle-fill' : 'bi-exclamation-triangle-fill');
+        mensajeVenta.innerHTML = `<div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+            <i class="bi ${icono} me-2"></i>
+            <span>${mensaje}</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
+        // Auto-scroll al mensaje
+        mensajeVenta.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
     // Elementos de transferencia
     const camposTransferencia = document.getElementById("camposTransferencia");
@@ -82,6 +92,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const producto = allProductos.find(p => p.idProducto === idProducto);
         if (producto) {
             inputPrecio.value = producto.precioVenta.toFixed(2);
+            // Cargar el descuento configurado en el producto (por defecto 0)
+            inputDescuento.value = (producto.descuento || 0).toFixed(2);
         }
     });
 
@@ -93,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const descuento = parseFloat(inputDescuento.value) || 0;
 
         if (!idProducto || cantidad <= 0 || isNaN(precio)) {
-            alert("Por favor, seleccione un Producto y verifique la Cantidad.");
+            mostrarAlerta("Por favor, seleccione un Producto y verifique la Cantidad.");
             return;
         }
 
@@ -101,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Validar Stock
         if (producto.stock < cantidad) {
-            alert("Stock insuficiente. Disponible: " + producto.stock);
+            mostrarAlerta("Stock insuficiente. Disponible: " + producto.stock);
             return;
         }
 
@@ -109,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const itemExistente = carrito.find(item => item.id === idProducto);
         if (itemExistente) {
             if (producto.stock < (itemExistente.cantidad + cantidad)) {
-                alert("Stock insuficiente para agregar más cantidad. Disponible: " + producto.stock);
+                mostrarAlerta("Stock insuficiente para agregar más cantidad. Disponible: " + producto.stock);
                 return;
             }
             itemExistente.cantidad += cantidad;
@@ -138,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
         selectProducto.value = "";
         inputCantidad.value = "1";
         inputPrecio.value = "";
-        inputDescuento.value = "0";
+        inputDescuento.value = ""; // Se limpiará al cambiar selección
     });
 
     // Registrar Venta
@@ -148,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const iva = parseFloat(inputIva.value) || 15;
 
         if (!idCliente || carrito.length === 0) {
-            alert("Debe seleccionar un cliente y agregar al menos un producto.");
+            mostrarAlerta("Debe seleccionar un cliente y agregar al menos un producto.");
             return;
         }
 
@@ -156,11 +168,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (metodoPago === "Transferencia") {
             const numTransferencia = inputNumeroTransferencia.value.trim();
             if (!numTransferencia) {
-                alert("Por favor ingrese el número de transferencia.");
+                mostrarAlerta("Por favor ingrese el número de transferencia.");
                 return;
             }
             if (!comprobanteBase64) {
-                alert("Por favor suba la captura del comprobante de transferencia.");
+                mostrarAlerta("Por favor suba la captura del comprobante de transferencia.");
                 return;
             }
         }
@@ -200,6 +212,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json();
             })
             .then(ventaDTO => {
+                console.log('=== VENTA REGISTRADA - DTO RECIBIDO ===');
+                console.log('DTO completo:', ventaDTO);
+                console.log('numeroTransferencia:', ventaDTO.numeroTransferencia);
+                console.log('rutaComprobante:', ventaDTO.rutaComprobante);
+                console.log('metodoPago:', ventaDTO.metodoPago);
+
                 // USAR TICKET UNIVERSAL
                 // Pasamos callback para recargar página al cerrar
                 window.mostrarTicketUniversal(ventaDTO, function () {
@@ -220,63 +238,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 
- main
-    // Función auxiliar para rellenar el HTML del modal
-    function llenarTicket(dto) {
-        document.getElementById('ticketId').innerText = dto.idVenta;
-        document.getElementById('ticketCliente').innerText = dto.nombreCliente;
-        document.getElementById('ticketFecha').innerText = dto.fecha;
-
-        document.getElementById('ticketSubtotal').innerText = dto.subtotal.toFixed(2);
-        document.getElementById('ticketDescuento').innerText = dto.totalDescuento.toFixed(2);
-        document.getElementById('ticketIva').innerText = dto.montoIva.toFixed(2);
-        document.getElementById('ticketTotal').innerText = dto.total.toFixed(2);
-
-        // Info Transferencia
-        const secTransferencia = document.getElementById('infoTransferenciaTicket');
-        if (dto.numeroTransferencia) {
-            secTransferencia.style.display = 'block';
-            document.getElementById('ticketRefTransferencia').innerText = dto.numeroTransferencia;
-
-            if (dto.rutaComprobante) {
-                // Ajustar ruta si es relativa
-                let ruta = dto.rutaComprobante;
-                if (!ruta.startsWith('http') && !ruta.startsWith('/')) {
-                    // Si es una ruta de archivo local del servidor, necesitamos un endpoint para servirla
-                    // O si la guardamos en uploads/..., necesitamos que static sirva esa carpeta.
-                    // Por simplicidad, asumiremos que Spring sirve "uploads" si configuramos, 
-                    // pero como no tenemos configuración de recursos estáticos extra,
-                    // una opción rápida es NO mostrar la imagen si no es URL pública, 
-                    // PERO el usuario quiere verla.
-                    // TRUCO: Si la ruta es absoluta del sistema, no se puede ver en navegador.
-                    // SOLUCIÓN: En este JS no podemos resolver eso fácilmente sin backend.
-                    // PONIENDO UN PLACEHOLDER O MENSAJE SI NO ES ACCESIBLE.
-                    document.getElementById('ticketImgComprobante').style.display = 'none'; // ocultar por ahora si es path local
-                    // TODO: Implementar Controller para servir imágenes de uploads
-                }
-            } else {
-                document.getElementById('ticketImgComprobante').style.display = 'none';
-            }
-        } else {
-            secTransferencia.style.display = 'none';
-        }
-
-        const tbody = document.getElementById('ticketItems');
-        tbody.innerHTML = '';
-
-        dto.items.forEach(item => {
-            let descTxt = item.descuento > 0 ? ` <small class="text-muted">(-${item.descuento}%)</small>` : '';
-            let fila = `
-                <tr>
-                    <td>${item.producto}</td>
-                    <td class="text-end">${item.cantidad}</td>
-                    <td class="text-end">$${item.subtotal.toFixed(2)}${descTxt}</td>
-                </tr>
-            `;
-            tbody.innerHTML += fila;
-        });
-    }
-
     // Funciones globales para los botones del modal
     window.imprimirTicket = function () {
         window.print();
@@ -285,11 +246,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.cerrarVenta = function () {
         window.location.reload();
     };
-
-    // (Funcion llenarTicket removida - ya no se usa)
-
-    // Quitar item del carrito
- main
 
     // Quitar item del carrito
     carritoBody.addEventListener("click", function (e) {

@@ -16,16 +16,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ControladorUsuario {
 
     @Autowired
-    private Facade facade; 
+    private Facade facade;
 
-    
-    //Muestra la pagina principal de los usuarios
-    
+    // Muestra la pagina principal de los usuarios
+
     @GetMapping
     public String mostrarPaginaUsuarios(Model model) {
         model.addAttribute("listaUsuarios", facade.obtenerTodosLosUsuarios());
 
-        
         if (!model.containsAttribute("nuevoUsuario")) {
             model.addAttribute("nuevoUsuario", new Usuario());
         }
@@ -36,9 +34,8 @@ public class ControladorUsuario {
         return "usuario";
     }
 
-    
-    //Metodo para registrar un nuevo usuario
-    
+    // Metodo para registrar un nuevo usuario
+
     @PostMapping("/registrar")
     public String registrarUsuario(@ModelAttribute("nuevoUsuario") Usuario usuario, RedirectAttributes attributes) {
         try {
@@ -46,15 +43,14 @@ public class ControladorUsuario {
             attributes.addFlashAttribute("mensajeExito", "Usuario registrado exitosamente.");
         } catch (Exception e) {
             attributes.addFlashAttribute("mensajeError", "Error al registrar: " + e.getMessage());
-            
             attributes.addFlashAttribute("nuevoUsuario", usuario);
+            attributes.addFlashAttribute("targetModal", "modalRegistrarUsuario");
         }
         return "redirect:/usuario";
     }
 
-    
-    //Procesa la actualizacion de un usuario registrado
-    
+    // Procesa la actualizacion de un usuario registrado
+
     @PostMapping("/actualizar")
     public String actualizarUsuario(@ModelAttribute("usuarioEditar") Usuario usuario, RedirectAttributes attributes) {
         try {
@@ -63,13 +59,13 @@ public class ControladorUsuario {
         } catch (Exception e) {
             attributes.addFlashAttribute("mensajeError", "Error al actualizar: " + e.getMessage());
             attributes.addFlashAttribute("usuarioEditar", usuario);
+            attributes.addFlashAttribute("targetModal", "modalEditarUsuario");
         }
         return "redirect:/usuario";
     }
 
-    
-    //Metodo para eliminar un usuario usando el id
-    
+    // Metodo para eliminar un usuario usando el id
+
     @PostMapping("/eliminar")
     public String eliminarUsuario(@ModelAttribute("id") Long idUsuario, RedirectAttributes attributes) {
         try {

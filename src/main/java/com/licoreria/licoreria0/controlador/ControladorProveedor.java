@@ -25,8 +25,12 @@ public class ControladorProveedor {
     public String mostrarPaginaProveedores(Model model) {
         model.addAttribute("listaProveedores", facade.obtenerTodosProveedores());
 
-        model.addAttribute("nuevoProveedor", new Proveedor());
-        model.addAttribute("proveedorEditar", new Proveedor());
+        if (!model.containsAttribute("nuevoProveedor")) {
+            model.addAttribute("nuevoProveedor", new Proveedor());
+        }
+        if (!model.containsAttribute("proveedorEditar")) {
+            model.addAttribute("proveedorEditar", new Proveedor());
+        }
 
         return "proveedores";
     }
@@ -42,6 +46,8 @@ public class ControladorProveedor {
             attributes.addFlashAttribute("mensajeExito", "Proveedor registrado exitosamente.");
         } catch (Exception e) {
             attributes.addFlashAttribute("mensajeError", "Error al registrar: " + e.getMessage());
+            attributes.addFlashAttribute("nuevoProveedor", proveedor);
+            attributes.addFlashAttribute("targetModal", "modalRegistrarProveedor");
         }
         return "redirect:/proveedores";
     }
@@ -56,6 +62,8 @@ public class ControladorProveedor {
             attributes.addFlashAttribute("mensajeExito", "Proveedor actualizado exitosamente.");
         } catch (Exception e) {
             attributes.addFlashAttribute("mensajeError", "Error al actualizar: " + e.getMessage());
+            attributes.addFlashAttribute("proveedorEditar", proveedor);
+            attributes.addFlashAttribute("targetModal", "modalEditarProveedor");
         }
         return "redirect:/proveedores";
     }

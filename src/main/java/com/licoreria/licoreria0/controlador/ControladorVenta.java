@@ -39,6 +39,7 @@ public class ControladorVenta {
     public ResponseEntity<?> registrarVentaAPI(@RequestBody VentaPeticionDTO peticion) {
         try {
             // 1. El Facade hace todo el trabajo pesado (Builder, Strategy, Observer)
+            // y devuelve la venta completa con los datos del Pago
             Venta ventaGuardada = facade.registrarVenta(peticion);
 
             // 2. CONVERSIÓN MANUAL (Mapeo) Entidad -> DTO usando método helper
@@ -103,20 +104,44 @@ public class ControladorVenta {
     // Método helper para convertir Venta a DTO
     private VentaResumenDTO convertirADTO(Venta venta) {
         List<VentaResumenDTO.ItemResumen> itemsDTO = new ArrayList<>();
-        double totalDescuento = 0.0;
+
+        double sumaSubtotalesBrutos = 0.0;
+        double totalDescuentos = 0.0;
 
         for (com.licoreria.licoreria0.modelo.DetalleVenta detalle : venta.getDetalles()) {
-            double precioTotalSinDescuento = detalle.getCantidad() * detalle.getPrecio();
-            double descuentoMonto = precioTotalSinDescuento * (detalle.getDescuento() / 100.0);
-            totalDescuento += descuentoMonto;
+            double precioUnit = detalle.getPrecio();
+            int cantidad = detalle.getCantidad();
+            double subtotalBruto = precioUnit * cantidad;
+
+            // Calcular descuento del item
+            double dcto = detalle.getDescuento(); // % de descuento
+            double montoDescuento = subtotalBruto * (dcto / 100.0);
+            double subtotalNeto = subtotalBruto - montoDescuento;
+
+            sumaSubtotalesBrutos += subtotalBruto;
+            totalDescuentos += montoDescuento;
 
             itemsDTO.add(new VentaResumenDTO.ItemResumen(
                     detalle.getProducto().getNombre(),
-                    detalle.getCantidad(),
-                    detalle.getPrecio(),
-                    detalle.getDescuento(),
-                    detalle.getSubtotalConDescuento()));
+                    cantidad,
+                    precioUnit,
+                    subtotalNeto,
+                    dcto // pasamos el porcentaje para mostrar si hay
+            ));
         }
+
+        // Cálculo de totales globales
+        // Subtotal Global = Suma de (P*Q) sin descuentos ni iva?
+        // Normalmente en factura:
+        // Subtotal: suma de precios base
+        // Descuento: monto total descontado
+        // Base Imponible: Subtotal - Descuento
+        // IVA (15%): Base Imponible * 0.15
+        // Total: Base Imponible + IVA
+
+        double baseImponible = sumaSubtotalesBrutos - totalDescuentos;
+        double montoIva = baseImponible * 0.15;
+        double totalCalculado = baseImponible + montoIva;
 
         // Obtener datos de pago (asumimos un solo pago principal)
         String metodoPago = "Desconocido";
@@ -128,25 +153,19 @@ public class ControladorVenta {
             metodoPago = pago.getMetodoPago();
             numeroTransferencia = pago.getNumeroTransferencia();
             rutaComprobante = pago.getRutaComprobante();
-
-            // Convertir ruta absoluta a URL relativa para el frontend
-            if (rutaComprobante != null && !rutaComprobante.isEmpty()) {
-                java.io.File f = new java.io.File(rutaComprobante);
-                rutaComprobante = "/uploads/comprobantes/" + f.getName();
-            }
         }
 
         return new VentaResumenDTO(
                 venta.getIdVenta(),
                 venta.getCliente().getNombre(),
                 venta.getFecha().toString(),
-                venta.getTotal(),
-                venta.getSubtotal(),
-                venta.getMontoIva(),
-                totalDescuento,
+                totalCalculado, // Usamos el calculado para que cuadre con la factura visual
                 metodoPago,
                 numeroTransferencia,
                 rutaComprobante,
+                sumaSubtotalesBrutos,
+                totalDescuentos,
+                montoIva,
                 itemsDTO);
     }
 }

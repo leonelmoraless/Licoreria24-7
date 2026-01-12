@@ -155,8 +155,8 @@
                 </li>
 
                 <li class="nav-item" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
-                    <a th:href="@{/analisis}" class="nav-link" data-bs-toggle="tooltip"
-                        data-bs-placement="right" title="Análisis de Ventas">
+                    <a th:href="@{/analisis}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
+                        title="Análisis de Ventas">
                         <i class="bi bi-graph-up"></i>
                         <span class="sidebar-text">Análisis</span>
                     </a>
@@ -257,61 +257,140 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script th:src="@{/js/scripts.js}"></script>
         <script th:src="@{/js/scripts_adicionales.js}"></script>
+
+        <!-- Script Global para Feedback y Validaciones Robustas -->
+        <script th:inline="javascript">
+            document.addEventListener("DOMContentLoaded", function () {
+                // DIAGNÓSTICO: Ver si llegan mensajes del servidor
+                const msgExito = /*[[${mensajeExito}]]*/ null;
+                const msgError = /*[[${mensajeError}]]*/ null;
+                if (msgExito) console.log("%c [ALERTA] ÉXITO RECEPTADO: ", "color: green; font-weight: bold;", msgExito);
+                if (msgError) {
+                    console.log("%c [ALERTA] ERROR RECEPTADO: ", "color: red; font-weight: bold;", msgError);
+                    // Alerta de respaldo (fallback) solo para errores si no se ve la UI
+                    alert("Aviso del Sistema: " + msgError);
+                }
+
+
+                // 1. Auto-ocultar mensajes de éxito después de 8 segundos
+                const alertsExito = document.querySelectorAll('.alert-success');
+                alertsExito.forEach(alert => {
+                    setTimeout(() => {
+                        try {
+                            const bsAlert = new bootstrap.Alert(alert);
+                            bsAlert.close();
+                        } catch (e) {
+                            // Si ya fue cerrada manualmente
+                        }
+                    }, 8000);
+                });
+
+                // 2. Lógica para re-abrir modales si hubo un error (Basado en FlashAttributes)
+                const targetModalId = /*[[${targetModal}]]*/ null;
+
+                if (targetModalId && targetModalId !== 'null') {
+                    const modalElement = document.getElementById(targetModalId);
+                    if (modalElement) {
+                        const modalInstance = new bootstrap.Modal(modalElement);
+                        modalInstance.show();
+                    }
+                }
+            });
+        </script>
     </div>
 
     <!-- FRAGMENTO: MODAL TICKET UNIVERSAL (Validado y corregido) -->
     <div th:fragment="modal-ticket-universal">
         <div class="modal fade" id="modalTicketUniversal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
             <div class="modal-dialog">
-                <div class="modal-content modal-ticket-white">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Detalle de Venta</h5>
-                        <!-- Botón de cierre normal para historial; en ventas nuevas se usará el onclick manual -->
+                <div class="modal-content text-dark" style="background-color: white;">
+                    <div class="modal-header border-0 pb-0">
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
-                    <div class="modal-body" id="areaImpresionUniversal">
-                        <div class="text-center mb-3">
-                            <h4>Licorería 24-7</h4>
-                            <p>RUC: 12345678901<br>Dirección: Av. Siempre Viva 123</p>
+                    <div class="modal-body pt-0" id="areaImpresionUniversal">
+                        <!-- HEADER FACTURA -->
+                        <div class="text-center mb-4">
+                            <h2 class="fw-bold mb-1">Licorería 24-7</h2>
+                            <p class="mb-0">RUC: 12345678901</p>
+                            <p class="mb-0">Dirección: Av. Siempre Viva 123</p>
                         </div>
-                        <hr>
-                        <div class="d-flex justify-content-between">
-                            <strong>N° Venta:</strong> <span id="ticketIdUniversal"></span>
+
+                        <!-- DATOS GENERALES -->
+                        <div class="mb-3 border-bottom pb-2">
+                            <div class="d-flex justify-content-between mb-1">
+                                <strong>N° Factura:</strong>
+                                <span id="ticketIdUniversal"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <strong>Fecha:</strong>
+                                <span id="ticketFechaUniversal"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <strong>Cliente:</strong>
+                                <span id="ticketClienteUniversal"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <strong>Método Pago:</strong>
+                                <span id="ticketMetodoPagoUniversal"></span>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <strong>Fecha:</strong> <span id="ticketFechaUniversal"></span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <strong>Cliente:</strong> <span id="ticketClienteUniversal"></span>
-                        </div>
-                        <hr>
-                        <table class="table table-sm table-borderless">
-                            <thead>
+
+                        <!-- TABLA PRODUCTOS -->
+                        <table class="table table-sm table-borderless mb-2">
+                            <thead class="border-bottom border-dark">
                                 <tr>
-                                    <th>Prod.</th>
-                                    <th>Cant.</th>
-                                    <th>P.Unit</th>
-                                    <th>Subtotal</th>
+                                    <th class="ps-0">Producto</th>
+                                    <th class="text-center">Cant.</th>
+                                    <th class="text-end">P.Unit</th>
+                                    <th class="text-end pe-0">Subtotal</th>
                                 </tr>
                             </thead>
                             <tbody id="ticketItemsUniversal">
+                                <!-- JS llenará esto -->
                             </tbody>
                         </table>
-                        <hr>
-                        <div class="d-flex justify-content-between fs-5 fw-bold">
-                            <span>TOTAL:</span>
-                            <span id="ticketTotalUniversal"></span>
+
+                        <!-- TOTALES -->
+                        <div class="border-top border-dark pt-2">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Subtotal:</span>
+                                <span>$<span id="ticketSubtotalUniversal"></span></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1 text-danger" id="rowDescuentoUniversal">
+                                <span>Descuento:</span>
+                                <span>-$<span id="ticketDescuentoUniversal"></span></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>IVA (15%):</span>
+                                <span>$<span id="ticketIvaUniversal"></span></span>
+                            </div>
+                            <div class="d-flex justify-content-between fw-bold fs-5 mt-2 border-top pt-2">
+                                <span>TOTAL:</span>
+                                <span>$<span id="ticketTotalUniversal"></span></span>
+                            </div>
                         </div>
-                        <div class="text-center mt-3">
-                            <p class="small">¡Gracias por su compra!<br>Vuelva pronto.</p>
+
+                        <!-- Sección Transferencia -->
+                        <div id="infoTransferenciaTicketUniversal" style="display: none;" class="mt-4 border-top pt-3">
+                            <h6 class="fw-bold mb-2">Detalle Transferencia</h6>
+                            <p class="mb-1"><strong>Ref:</strong> <span id="ticketRefTransferenciaUniversal"></span></p>
+                            <div class="text-center mt-2">
+                                <p class="small text-muted mb-1">Comprobante:</p>
+                                <img id="ticketImgComprobanteUniversal" src="" alt="Comprobante"
+                                    style="max-width: 100%; max-height: 250px; border: 1px solid #ddd;">
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <p class="small text-muted">¡Gracias por su compra!<br>Vuelva pronto.</p>
                         </div>
                     </div>
 
-                    <div class="modal-footer">
+                    <div class="modal-footer border-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
                             id="btnCerrarTicketUniversal">Cerrar</button>
-                        <button type="button" class="btn btn-primary" onclick="window.print()">
+                        <button type="button" class="btn btn-dark" onclick="window.print()">
                             <i class="bi bi-printer-fill"></i> Imprimir
                         </button>
                     </div>

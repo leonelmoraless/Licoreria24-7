@@ -33,9 +33,9 @@ public class VentaBuilderTest {
         VentaBuilder builder = new VentaBuilder();
         Venta venta = builder.conCliente(clienteDummy)
                 // 2 Cervezas a $10.00 = $20.00
-                .agregarDetalle(producto1, 2, 10.00)
+                .agregarDetalle(producto1, 2, 10.00, 0.0)
                 // 1 Vino a $50.00 = $50.00
-                .agregarDetalle(producto2, 1, 50.00)
+                .agregarDetalle(producto2, 1, 50.00, 0.0)
                 .construir();
 
         // 3. Verificación (Assert)
@@ -84,7 +84,7 @@ public class VentaBuilderTest {
         Venta venta = builder.conCliente(cliente)
                 .conIva(10.0) // 10% IVA
                 // 1 item a $100. No descuento. Subtotal = 100.
-                .agregarDetalle(prod, 1, 100.0)
+                .agregarDetalle(prod, 1, 100.0, 0.0)
                 .construir();
 
         // Subtotal = 100
@@ -125,7 +125,7 @@ public class VentaBuilderTest {
 
         // Intentamos comprar 5 (Supera stock de 2)
         Exception exception = assertThrows(Exception.class, () -> {
-            builder.agregarDetalle(productoSinStock, 5, 100.00);
+            builder.agregarDetalle(productoSinStock, 5, 100.00, 0.0);
         });
 
         assertTrue(exception.getMessage().contains("Stock insuficiente"), "Debe impedir agregar productos sin stock");

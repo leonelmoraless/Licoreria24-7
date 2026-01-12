@@ -7,40 +7,38 @@ public class VentaResumenDTO {
 
     private Long idVenta;
     private String nombreCliente;
-    private String fecha; // Lo manejaremos como String para facilitar visualización
-    private Double total;
+    private String fecha;
     private Double subtotal;
-    private Double montoIva;
     private Double totalDescuento;
+    private Double montoIva;
+    private Double total;
     private String metodoPago;
+
+    // Transferencia
     private String numeroTransferencia;
     private String rutaComprobante;
 
-    private List<ItemResumen> items; // Lista de productos simplificada
+    private List<ItemResumen> items;
 
-    // Constructor vacío
     public VentaResumenDTO() {
     }
 
-    // Constructor completo
     public VentaResumenDTO(Long idVenta, String nombreCliente, String fecha, Double total,
-            Double subtotal, Double montoIva, Double totalDescuento,
             String metodoPago, String numeroTransferencia, String rutaComprobante,
-            List<ItemResumen> items) {
+            Double subtotal, Double totalDescuento, Double montoIva, List<ItemResumen> items) {
         this.idVenta = idVenta;
         this.nombreCliente = nombreCliente;
         this.fecha = fecha;
         this.total = total;
-        this.subtotal = subtotal;
-        this.montoIva = montoIva;
-        this.totalDescuento = totalDescuento;
         this.metodoPago = metodoPago;
         this.numeroTransferencia = numeroTransferencia;
         this.rutaComprobante = rutaComprobante;
+        this.subtotal = subtotal;
+        this.totalDescuento = totalDescuento;
+        this.montoIva = montoIva;
         this.items = items;
     }
 
-    // Getters y Setters
     public Long getIdVenta() {
         return idVenta;
     }
@@ -73,30 +71,6 @@ public class VentaResumenDTO {
         this.total = total;
     }
 
-    public Double getSubtotal() {
-        return subtotal;
-    }
-
-    public void setSubtotal(Double subtotal) {
-        this.subtotal = subtotal;
-    }
-
-    public Double getMontoIva() {
-        return montoIva;
-    }
-
-    public void setMontoIva(Double montoIva) {
-        this.montoIva = montoIva;
-    }
-
-    public Double getTotalDescuento() {
-        return totalDescuento;
-    }
-
-    public void setTotalDescuento(Double totalDescuento) {
-        this.totalDescuento = totalDescuento;
-    }
-
     public String getMetodoPago() {
         return metodoPago;
     }
@@ -121,6 +95,30 @@ public class VentaResumenDTO {
         this.rutaComprobante = rutaComprobante;
     }
 
+    public Double getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(Double subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public Double getTotalDescuento() {
+        return totalDescuento;
+    }
+
+    public void setTotalDescuento(Double totalDescuento) {
+        this.totalDescuento = totalDescuento;
+    }
+
+    public Double getMontoIva() {
+        return montoIva;
+    }
+
+    public void setMontoIva(Double montoIva) {
+        this.montoIva = montoIva;
+    }
+
     public List<ItemResumen> getItems() {
         return items;
     }
@@ -129,24 +127,23 @@ public class VentaResumenDTO {
         this.items = items;
     }
 
-    // Clase interna estática para representar cada línea del ticket
     public static class ItemResumen {
         private String producto;
         private Integer cantidad;
         private Double precioUnitario;
-        private Double descuento;
         private Double subtotal;
+        private Double descuento;
 
         public ItemResumen() {
         }
 
-        public ItemResumen(String producto, Integer cantidad, Double precioUnitario, Double descuento,
-                Double subtotal) {
+        public ItemResumen(String producto, Integer cantidad, Double precioUnitario, Double subtotal,
+                Double descuento) {
             this.producto = producto;
             this.cantidad = cantidad;
             this.precioUnitario = precioUnitario;
-            this.descuento = descuento;
             this.subtotal = subtotal;
+            this.descuento = descuento;
         }
 
         public String getProducto() {
@@ -173,20 +170,20 @@ public class VentaResumenDTO {
             this.precioUnitario = precioUnitario;
         }
 
-        public Double getDescuento() {
-            return descuento;
-        }
-
-        public void setDescuento(Double descuento) {
-            this.descuento = descuento;
-        }
-
         public Double getSubtotal() {
             return subtotal;
         }
 
         public void setSubtotal(Double subtotal) {
             this.subtotal = subtotal;
+        }
+
+        public Double getDescuento() {
+            return descuento;
+        }
+
+        public void setDescuento(Double descuento) {
+            this.descuento = descuento;
         }
     }
 }

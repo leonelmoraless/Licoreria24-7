@@ -74,17 +74,22 @@ public class Facade {
     // gestiona los proveedores verificando duplicados y validando datos
     public Proveedor registrarProveedor(Proveedor proveedor) throws Exception {
 
+        if (proveedor.getNombre() == null || proveedor.getNombre().trim().isEmpty()) {
+            throw new Exception("El nombre del proveedor es obligatorio.");
+        }
+
         String rucDelProveedor = proveedor.getRuc();
 
-        if (rucDelProveedor != null) {
-            if (!rucDelProveedor.isEmpty()) {
-
-                Optional<Proveedor> posibleDuplicado = proveedorRepositorio.findByRuc(rucDelProveedor);
-
-                if (posibleDuplicado.isPresent()) {
-                    throw new Exception("El RUC " + rucDelProveedor + " ya está registrado.");
-                }
+        if (rucDelProveedor != null && !rucDelProveedor.isEmpty()) {
+            Optional<Proveedor> posibleDuplicado = proveedorRepositorio.findByRuc(rucDelProveedor);
+            if (posibleDuplicado.isPresent()) {
+                throw new Exception("El RUC " + rucDelProveedor + " ya está registrado.");
             }
+        }
+
+        // Validar si ya existe el nombre para evitar duplicados visuales
+        if (proveedorRepositorio.findByNombre(proveedor.getNombre().trim()).isPresent()) {
+            throw new Exception("Ya existe un proveedor con el nombre: " + proveedor.getNombre());
         }
 
         Proveedor proveedorGuardado = proveedorRepositorio.save(proveedor);
@@ -98,26 +103,31 @@ public class Facade {
     public Proveedor actualizarProveedor(Proveedor proveedorConNuevosDatos) throws Exception {
 
         Long idProveedor = proveedorConNuevosDatos.getIdProveedor();
+        if (idProveedor == null) {
+            throw new Exception("ID de proveedor no proporcionado.");
+        }
+
         Proveedor proveedorOriginal = proveedorRepositorio.findById(idProveedor)
                 .orElseThrow(() -> new Exception("Proveedor no encontrado."));
+
+        if (proveedorConNuevosDatos.getNombre() == null || proveedorConNuevosDatos.getNombre().trim().isEmpty()) {
+            throw new Exception("El nombre del proveedor es obligatorio.");
+        }
 
         String nuevoRuc = proveedorConNuevosDatos.getRuc();
         String rucOriginal = proveedorOriginal.getRuc();
 
-        if (nuevoRuc != null) {
-            if (!nuevoRuc.isEmpty()) {
-                if (!nuevoRuc.equals(rucOriginal)) {
-
-                    if (proveedorRepositorio.findByRuc(nuevoRuc).isPresent()) {
-                        throw new Exception("El nuevo RUC " + nuevoRuc + " ya está en uso.");
-                    }
+        if (nuevoRuc != null && !nuevoRuc.isEmpty()) {
+            if (!nuevoRuc.equals(rucOriginal)) {
+                if (proveedorRepositorio.findByRuc(nuevoRuc).isPresent()) {
+                    throw new Exception("El nuevo RUC " + nuevoRuc + " ya está en uso.");
                 }
             }
         }
 
         // Actualizar y guarda los datos a la base de datos
-        proveedorOriginal.setNombre(proveedorConNuevosDatos.getNombre());
-        proveedorOriginal.setRuc(proveedorConNuevosDatos.getRuc());
+        proveedorOriginal.setNombre(proveedorConNuevosDatos.getNombre().trim());
+        proveedorOriginal.setRuc(nuevoRuc);
         proveedorOriginal.setTelefono(proveedorConNuevosDatos.getTelefono());
         proveedorOriginal.setDireccion(proveedorConNuevosDatos.getDireccion());
         proveedorOriginal.setCorreo(proveedorConNuevosDatos.getCorreo());
@@ -161,13 +171,36 @@ public class Facade {
     // gestiona los productos validando datos y usando el patron factory
     public Producto registrarProducto(Producto producto, Long idProveedor) throws Exception {
 
+        if (idProveedor == null) {
+            throw new Exception("Debe seleccionar un proveedor.");
+        }
+
         Proveedor proveedorEncontrado = proveedorRepositorio.findById(idProveedor)
                 .orElseThrow(() -> new Exception("Proveedor no encontrado con ID: " + idProveedor));
 
         String nombre = producto.getNombre();
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new Exception("El nombre del producto es obligatorio.");
+        }
+
         Double precioCompra = producto.getPrecioCompra();
+        if (precioCompra == null || precioCompra <= 0) {
+            throw new Exception("El precio de compra debe ser mayor a 0.");
+        }
+
         Double precioVenta = producto.getPrecioVenta();
+        if (precioVenta == null || precioVenta <= 0) {
+            throw new Exception("El precio de venta debe ser mayor a 0.");
+        }
+
+        if (precioVenta < precioCompra) {
+            throw new Exception("El precio de venta no puede ser menor al de compra.");
+        }
+
         Integer stock = producto.getStock();
+        if (stock == null || stock < 0) {
+            throw new Exception("El stock no puede ser negativo.");
+        }
 
         Producto nuevoProducto = productoFactory.crearProducto(
                 nombre,
@@ -175,6 +208,9 @@ public class Facade {
                 precioVenta,
                 stock,
                 proveedorEncontrado);
+
+        // Seteamos el descuento
+        nuevoProducto.setDescuento(producto.getDescuento());
 
         // Guardar en la base de datos
         Producto productoGuardado = productoRepositorio.save(nuevoProducto);
@@ -187,14 +223,43 @@ public class Facade {
     public Producto actualizarProducto(Producto productoConDatosNuevos, Long idProveedor) throws Exception {
 
         Long idProducto = productoConDatosNuevos.getIdProducto();
+        if (idProducto == null) {
+            throw new Exception("ID de producto no proporcionado.");
+        }
+
         Producto productoOriginal = productoRepositorio.findById(idProducto)
                 .orElseThrow(() -> new Exception("Producto no encontrado."));
+
+        if (idProveedor == null) {
+            throw new Exception("Debe seleccionar un proveedor.");
+        }
+
         Proveedor proveedor = proveedorRepositorio.findById(idProveedor)
                 .orElseThrow(() -> new Exception("Proveedor no encontrado con ID: " + idProveedor));
 
-        productoOriginal.setNombre(productoConDatosNuevos.getNombre());
-        productoOriginal.setPrecioCompra(productoConDatosNuevos.getPrecioCompra());
-        productoOriginal.setPrecioVenta(productoConDatosNuevos.getPrecioVenta());
+        String nombre = productoConDatosNuevos.getNombre();
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new Exception("El nombre del producto no puede estar vacío.");
+        }
+
+        Double precioCompra = productoConDatosNuevos.getPrecioCompra();
+        if (precioCompra == null || precioCompra <= 0) {
+            throw new Exception("El precio de compra debe ser mayor a 0.");
+        }
+
+        Double precioVenta = productoConDatosNuevos.getPrecioVenta();
+        if (precioVenta == null || precioVenta <= 0) {
+            throw new Exception("El precio de venta debe ser mayor a 0.");
+        }
+
+        if (precioVenta < precioCompra) {
+            throw new Exception("El precio de venta no puede ser menor al de compra.");
+        }
+
+        productoOriginal.setNombre(nombre.trim());
+        productoOriginal.setPrecioCompra(precioCompra);
+        productoOriginal.setPrecioVenta(precioVenta);
+        productoOriginal.setDescuento(productoConDatosNuevos.getDescuento());
         productoOriginal.setStock(productoConDatosNuevos.getStock());
         productoOriginal.setProveedor(proveedor);
 
@@ -337,14 +402,34 @@ public class Facade {
     // Esta es la parte del facade que gestiona los usuarios y la seguridad
     // registra, actualiza, elimina, cambia y recupera contraseñas
     public Usuario registrarUsuario(Usuario nuevoUsuario) throws Exception {
+
+        if (nuevoUsuario.getNombre() == null || nuevoUsuario.getNombre().trim().isEmpty()) {
+            throw new Exception("El nombre del usuario es obligatorio.");
+        }
+
         String correo = nuevoUsuario.getCorreo();
-        if (usuarioRepositorio.findByCorreo(correo).isPresent()) {
+        if (correo == null || correo.trim().isEmpty()) {
+            throw new Exception("El correo es obligatorio.");
+        }
+
+        if (!correo.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            throw new Exception("El formato del correo es inválido.");
+        }
+
+        if (usuarioRepositorio.findByCorreo(correo.trim()).isPresent()) {
             throw new Exception("El correo " + correo + " ya está en uso.");
         }
 
-        // Aqui encripta la contraseña antes de guardar
+        // Validar contraseña
         String contrasenaPlana = nuevoUsuario.getContrasena();
+        if (contrasenaPlana == null || contrasenaPlana.length() < 4) {
+            throw new Exception("La contraseña debe tener al menos 4 caracteres.");
+        }
+
+        // Aqui encripta la contraseña antes de guardar
         String contrasenaEncriptada = codificadorDeContrasena.encode(contrasenaPlana);
+        nuevoUsuario.setNombre(nuevoUsuario.getNombre().trim());
+        nuevoUsuario.setCorreo(correo.trim());
         nuevoUsuario.setContrasena(contrasenaEncriptada);
 
         Usuario usuarioGuardado = usuarioRepositorio.save(nuevoUsuario);
@@ -363,28 +448,40 @@ public class Facade {
         Usuario usuarioOriginal = usuarioRepositorio.findById(idUsuario)
                 .orElseThrow(() -> new Exception("Usuario no encontrado"));
 
+        if (usuarioConNuevosDatos.getNombre() == null || usuarioConNuevosDatos.getNombre().trim().isEmpty()) {
+            throw new Exception("El nombre del usuario no puede estar vacío.");
+        }
+
         String nuevoCorreo = usuarioConNuevosDatos.getCorreo();
+        if (nuevoCorreo == null || nuevoCorreo.trim().isEmpty()) {
+            throw new Exception("El correo es obligatorio.");
+        }
+
+        if (!nuevoCorreo.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            throw new Exception("El formato del correo es inválido.");
+        }
+
         String correoOriginal = usuarioOriginal.getCorreo();
 
-        if (!nuevoCorreo.equals(correoOriginal)) {
-            if (usuarioRepositorio.findByCorreo(nuevoCorreo).isPresent()) {
+        if (!nuevoCorreo.trim().equalsIgnoreCase(correoOriginal)) {
+            if (usuarioRepositorio.findByCorreo(nuevoCorreo.trim()).isPresent()) {
                 throw new Exception("El nuevo correo " + nuevoCorreo + " ya está en uso.");
             }
         }
         // actualiza la contraseña y si no se cambia la deja igual
         String nuevaContrasena = usuarioConNuevosDatos.getContrasena();
 
-        if (nuevaContrasena != null) {
-            if (!nuevaContrasena.isEmpty()) {
-                String contrasenaEncriptada = codificadorDeContrasena.encode(nuevaContrasena);
-                usuarioOriginal.setContrasena(contrasenaEncriptada);
+        if (nuevaContrasena != null && !nuevaContrasena.isEmpty()) {
+            if (nuevaContrasena.length() < 4) {
+                throw new Exception("La nueva contraseña debe tener al menos 4 caracteres.");
             }
-
+            String contrasenaEncriptada = codificadorDeContrasena.encode(nuevaContrasena);
+            usuarioOriginal.setContrasena(contrasenaEncriptada);
         }
 
         // actualiza otros datos y guarda
-        usuarioOriginal.setNombre(usuarioConNuevosDatos.getNombre());
-        usuarioOriginal.setCorreo(nuevoCorreo);
+        usuarioOriginal.setNombre(usuarioConNuevosDatos.getNombre().trim());
+        usuarioOriginal.setCorreo(nuevoCorreo.trim());
         usuarioOriginal.setRol(usuarioConNuevosDatos.getRol());
 
         Usuario usuarioActualizado = usuarioRepositorio.save(usuarioOriginal);
@@ -494,6 +591,9 @@ public class Facade {
     // --------------------------------------------------------------------------------------
 
     public Cliente registrarCliente(Cliente cliente) throws Exception {
+        if (cliente.getNombre() == null || cliente.getNombre().trim().isEmpty()) {
+            throw new Exception("El nombre del cliente es obligatorio.");
+        }
         // Validar si la cédula ya existe
         if (cliente.getCedula() != null && !cliente.getCedula().isEmpty()) {
             if (clienteRepositorio.findByCedula(cliente.getCedula()).isPresent()) {
@@ -508,6 +608,12 @@ public class Facade {
     }
 
     public void actualizarCliente(Cliente cliente) throws Exception {
+        if (cliente.getIdCliente() == null) {
+            throw new Exception("ID de cliente no proporcionado.");
+        }
+        if (cliente.getNombre() == null || cliente.getNombre().trim().isEmpty()) {
+            throw new Exception("El nombre del cliente es obligatorio.");
+        }
         if (!clienteRepositorio.existsById(cliente.getIdCliente())) {
             throw new Exception("Cliente no encontrado.");
         }
@@ -533,10 +639,9 @@ public class Facade {
         Cliente cliente = clienteRepositorio.findById(idCliente)
                 .orElseThrow(() -> new Exception("Cliente no encontrado con ID: " + idCliente));
 
-        // 2. Usar BUILDER para construir la venta compleja (con IVA)
+        // 2. Usar BUILDER para construir la venta simple
         VentaBuilder builder = new VentaBuilder();
         builder.conCliente(cliente);
-        builder.conIva(peticionVenta.getIva());
 
         List<VentaPeticionDTO.ItemVentaDTO> items = peticionVenta.getItems();
         for (VentaPeticionDTO.ItemVentaDTO item : items) {
@@ -544,7 +649,7 @@ public class Facade {
             Producto producto = productoRepositorio.findById(idProducto)
                     .orElseThrow(() -> new Exception("Producto no encontrado: " + idProducto));
 
-            // El builder valida stock (Fail Fast) y calcula subtotales con descuento
+            // El builder calcula total simple (Ahora pasamos el descuento)
             builder.agregarDetalle(producto, item.getCantidad(), item.getPrecioUnitario(), item.getDescuento());
         }
 
@@ -558,27 +663,32 @@ public class Facade {
         MetodoPagoStrategy estrategia = contextoPago.obtenerEstrategia(metodoNombre);
         estrategia.procesarPago(ventaGuardada, ventaGuardada.getTotal());
 
-        // 5. Guardar el registro del pago (con datos de transferencia si aplica)
+        // 5. Guardar el registro del pago
         if (metodoNombre != null && !metodoNombre.isEmpty()) {
-            Pago pago;
+            Pago pago = new Pago(ventaGuardada, metodoNombre);
 
+            // Si es transferencia, guardar número y comprobante
             if ("Transferencia".equalsIgnoreCase(metodoNombre)) {
-                // Guardar comprobante si se proporcionó
-                String rutaComprobante = null;
-                String comprobanteBase64 = peticionVenta.getComprobanteBase64();
+                pago.setNumeroTransferencia(peticionVenta.getNumeroTransferencia());
 
-                if (comprobanteBase64 != null && !comprobanteBase64.isEmpty()) {
-                    rutaComprobante = guardarComprobanteTransferencia(comprobanteBase64, ventaGuardada.getIdVenta());
+                // Guardar comprobante si existe
+                if (peticionVenta.getComprobanteBase64() != null && !peticionVenta.getComprobanteBase64().isEmpty()) {
+                    String rutaArchivo = guardarComprobanteTransferencia(
+                            peticionVenta.getComprobanteBase64(),
+                            ventaGuardada.getIdVenta());
+                    pago.setRutaComprobante(rutaArchivo);
                 }
-
-                pago = new Pago(ventaGuardada, metodoNombre,
-                        peticionVenta.getNumeroTransferencia(),
-                        rutaComprobante);
-            } else {
-                pago = new Pago(ventaGuardada, metodoNombre);
             }
 
-            pagoRepositorio.save(pago);
+            Pago pagoGuardado = pagoRepositorio.save(pago);
+
+            // Forzar flush para que Hibernate sincronice el pago con la BD
+            pagoRepositorio.flush();
+
+            // SOLUCIÓN FINAL: Añadir manualmente el pago a la lista de la venta en memoria
+            // Esto asegura que el objeto devuelto tenga el pago SIN neceisdad de recargar
+            // de la BD
+            ventaGuardada.getPagos().add(pagoGuardado);
         }
 
         // 6. Notificar a OBSERVERS (Actualizar Inventario)
@@ -586,6 +696,7 @@ public class Facade {
             observador.notificarVenta(ventaGuardada);
         }
 
+        // Devolvemos la venta original que ya tiene el pago añadido manualmente
         return ventaGuardada;
     }
 

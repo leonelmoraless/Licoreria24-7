@@ -27,36 +27,18 @@ public class VentaBuilder {
         return this;
     }
 
-    public VentaBuilder conIva(Double iva) {
-        this.ivaPorcentaje = iva != null ? iva : 15.0;
-        return this;
-    }
-
-    public VentaBuilder agregarDetalle(Producto producto, Integer cantidad, Double precioUnitario) throws Exception {
-        return agregarDetalle(producto, cantidad, precioUnitario, 0.0);
-    }
-
     public VentaBuilder agregarDetalle(Producto producto, Integer cantidad, Double precioUnitario, Double descuento)
             throws Exception {
-
-        // Validacion rapida de stock en el builder (Fail Fast)
+        // Validacion rapida de stock
         if (producto.getStock() < cantidad) {
             throw new Exception("Stock insuficiente para: " + producto.getNombre());
         }
 
-        double descuentoPorcentaje = descuento != null ? descuento : 0.0;
-
-        // Calcular subtotal con descuento aplicado
-        double subtotalSinDescuento = precioUnitario * cantidad;
-        double montoDescuento = subtotalSinDescuento * (descuentoPorcentaje / 100.0);
-        double subtotalConDescuento = subtotalSinDescuento - montoDescuento;
-
-        this.subtotalAcumulado += subtotalConDescuento;
+        double subtotal = precioUnitario * cantidad;
+        this.subtotalAcumulado += subtotal;
 
         // Crear el detalle con descuento
-        DetalleVenta detalle = new DetalleVenta(this.venta, producto, cantidad, precioUnitario, descuentoPorcentaje);
-
-        // Agregar a la lista de detalles de la venta
+        DetalleVenta detalle = new DetalleVenta(this.venta, producto, cantidad, precioUnitario, descuento);
         this.venta.getDetalles().add(detalle);
 
         return this;
@@ -67,15 +49,8 @@ public class VentaBuilder {
             throw new Exception("No se puede crear una venta sin cliente.");
         }
 
-        // Calcular IVA y total
-        double montoIva = this.subtotalAcumulado * (this.ivaPorcentaje / 100.0);
-        double totalFinal = this.subtotalAcumulado + montoIva;
-
-        this.venta.setSubtotal(this.subtotalAcumulado);
-        this.venta.setIva(this.ivaPorcentaje);
-        this.venta.setMontoIva(montoIva);
-        this.venta.setTotal(totalFinal);
-
+        // Total simple sin IVA ni descuentos
+        this.venta.setTotal(this.subtotalAcumulado);
         return this.venta;
     }
 }

@@ -25,11 +25,14 @@ public class ControladorProducto {
 
     @GetMapping
     public String mostrarPaginaProductos(Model model) {
-
         model.addAttribute("listaProductos", facade.obtenerTodosProductos());
 
-        model.addAttribute("nuevoProducto", new Producto());
-        model.addAttribute("productoEditar", new Producto());
+        if (!model.containsAttribute("nuevoProducto")) {
+            model.addAttribute("nuevoProducto", new Producto());
+        }
+        if (!model.containsAttribute("productoEditar")) {
+            model.addAttribute("productoEditar", new Producto());
+        }
 
         model.addAttribute("listaProveedores", facade.obtenerTodosProveedores());
 
@@ -43,17 +46,13 @@ public class ControladorProducto {
     public String registrarProducto(@ModelAttribute("nuevoProducto") Producto producto,
             @RequestParam("idProveedor") Long idProveedor,
             RedirectAttributes attributes) {
-        System.out.println("Registrando producto: " + producto.getNombre());
-        System.out.println("Precio Compra: " + producto.getPrecioCompra());
-        System.out.println("Precio Venta: " + producto.getPrecioVenta());
         try {
-
             facade.registrarProducto(producto, idProveedor);
-
             attributes.addFlashAttribute("mensajeExito", "Producto registrado exitosamente.");
         } catch (Exception e) {
-
             attributes.addFlashAttribute("mensajeError", "Error al registrar: " + e.getMessage());
+            attributes.addFlashAttribute("nuevoProducto", producto);
+            attributes.addFlashAttribute("targetModal", "modalRegistrarProducto");
         }
         return "redirect:/productos";
     }
@@ -65,13 +64,13 @@ public class ControladorProducto {
     public String actualizarProducto(@ModelAttribute("productoEditar") Producto producto,
             @RequestParam("idProveedorEdit") Long idProveedor,
             RedirectAttributes attributes) {
-        System.out.println("Actualizando producto ID: " + producto.getIdProducto());
-        System.out.println("Precio Venta Recibido: " + producto.getPrecioVenta());
         try {
             facade.actualizarProducto(producto, idProveedor);
             attributes.addFlashAttribute("mensajeExito", "Producto actualizado exitosamente.");
         } catch (Exception e) {
             attributes.addFlashAttribute("mensajeError", "Error al actualizar: " + e.getMessage());
+            attributes.addFlashAttribute("productoEditar", producto);
+            attributes.addFlashAttribute("targetModal", "modalEditarProducto");
         }
         return "redirect:/productos";
     }

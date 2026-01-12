@@ -17,6 +17,18 @@
         <main class="content-area p-4">
             <h2 class="mb-4">Historial de Compras</h2>
 
+            <div th:if="${mensajeExito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span th:text="${mensajeExito}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${mensajeError}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+
             <div class="table-wrapper">
                 <table class="table table-hover align-middle">
                     <thead class="table-primary">

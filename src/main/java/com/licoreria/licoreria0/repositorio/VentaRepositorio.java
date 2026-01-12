@@ -21,4 +21,14 @@ public interface VentaRepositorio extends JpaRepository<Venta, Long> {
      * @return Lista de ventas en el rango especificado
      */
     List<Venta> findByFechaBetween(Date fechaInicio, Date fechaFin);
+
+    /**
+     * Obtiene una venta con sus pagos cargados (evita lazy loading)
+     * 
+     * @param idVenta ID de la venta
+     * @return Venta con pagos cargados
+     */
+    @org.springframework.data.jpa.repository.Query("SELECT v FROM Venta v LEFT JOIN FETCH v.pagos WHERE v.idVenta = :idVenta")
+    java.util.Optional<Venta> findByIdWithPagos(
+            @org.springframework.data.repository.query.Param("idVenta") Long idVenta);
 }

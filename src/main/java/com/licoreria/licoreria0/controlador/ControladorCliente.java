@@ -18,8 +18,12 @@ public class ControladorCliente {
     @GetMapping
     public String mostrarPaginaClientes(Model model) {
         model.addAttribute("listaClientes", facade.obtenerTodosClientes());
-        model.addAttribute("nuevoCliente", new Cliente());
-        model.addAttribute("clienteEditar", new Cliente());
+        if (!model.containsAttribute("nuevoCliente")) {
+            model.addAttribute("nuevoCliente", new Cliente());
+        }
+        if (!model.containsAttribute("clienteEditar")) {
+            model.addAttribute("clienteEditar", new Cliente());
+        }
         return "clientes";
     }
 
@@ -31,6 +35,8 @@ public class ControladorCliente {
             attributes.addFlashAttribute("mensajeExito", "Cliente registrado exitosamente.");
         } catch (Exception e) {
             attributes.addFlashAttribute("mensajeError", "Error al registrar: " + e.getMessage());
+            attributes.addFlashAttribute("nuevoCliente", cliente);
+            attributes.addFlashAttribute("targetModal", "modalRegistrarCliente");
         }
         return "redirect:/clientes";
     }
@@ -43,6 +49,8 @@ public class ControladorCliente {
             attributes.addFlashAttribute("mensajeExito", "Cliente actualizado exitosamente.");
         } catch (Exception e) {
             attributes.addFlashAttribute("mensajeError", "Error al actualizar: " + e.getMessage());
+            attributes.addFlashAttribute("clienteEditar", cliente);
+            attributes.addFlashAttribute("targetModal", "modalEditarCliente");
         }
         return "redirect:/clientes";
     }

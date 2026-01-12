@@ -437,8 +437,67 @@ body {
 }
 
 /* =========================================
-   6. BOTONES (Tus estilos originales + mejoras)
+   5.1 ALERTAS - FEEDBACK VISUAL
    ========================================= */
+.alert {
+    border-radius: 12px;
+    border: none;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    margin-bottom: 1.5rem;
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    width: auto;
+    min-width: 300px;
+    max-width: 500px;
+    z-index: 10001 !important;
+    /* Por encima de loaders (9999) */
+    animation: alertSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes alertSlideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+
+
+.alert-success {
+    background: #155724 !important;
+    /* Fondo sólido oscuro */
+    border: 2px solid #28a745 !important;
+    color: #d4edda !important;
+    box-shadow: 0 0 20px rgba(40, 167, 69, 0.4);
+}
+
+.alert-danger {
+    background: #721c24 !important;
+    /* Fondo sólido oscuro */
+    border: 2px solid #dc3545 !important;
+    color: #f8d7da !important;
+    box-shadow: 0 0 20px rgba(220, 53, 69, 0.4);
+}
+
+.alert-info {
+    background: rgba(13, 202, 240, 0.2) !important;
+    border: 1px solid rgba(13, 202, 240, 0.5) !important;
+    color: #0dcaf0 !important;
+    box-shadow: 0 0 15px rgba(13, 202, 240, 0.2);
+}
+
+.alert .btn-close {
+    filter: invert(0) grayscale(1) brightness(2);
+}
+
 .boton {
     width: 35%;
     padding: 0.75rem 1.25rem;
@@ -900,4 +959,47 @@ body {
     .modal-footer {
         display: none !important;
     }
+}
+
+/* =========================================
+   10. MODAL TICKET UNIVERSAL - FONDO BLANCO
+   ========================================= */
+/* Override para el modal de ticket: fondo blanco, sin imagen */
+#modalTicketUniversal .modal-content {
+    background-image: none !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #333333 !important;
+}
+
+#modalTicketUniversal .modal-header {
+    background: transparent !important;
+    border-bottom: 1px solid #dee2e6 !important;
+}
+
+#modalTicketUniversal .modal-body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+#modalTicketUniversal .modal-footer {
+    background: transparent !important;
+    border-top: 1px solid #dee2e6 !important;
+}
+
+#modalTicketUniversal .text-dark {
+    color: #000000 !important;
+}
+
+#modalTicketUniversal .border-dark {
+    border-color: #000000 !important;
+}
+
+#modalTicketUniversal th {
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
+
+#modalTicketUniversal td {
+    color: #000000 !important;
 }

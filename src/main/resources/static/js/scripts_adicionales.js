@@ -326,21 +326,16 @@ function initLoader() {
 
     // --- FUNCIÓN GLOBAL PARA MOSTRAR TICKET UNIVERSAL ---
     window.mostrarTicketUniversal = function (dto, callbackCierre) {
-        // 1. Llenar datos
+        console.log('=== MOSTRAR TICKET UNIVERSAL LLAMADO ===');
+        console.log('DTO recibido:', dto);
+
+        // 1. Llenar datos Generales
         document.getElementById('ticketIdUniversal').textContent = dto.idVenta;
         document.getElementById('ticketClienteUniversal').textContent = dto.nombreCliente;
-        document.getElementById('ticketFechaUniversal').textContent = dto.fecha;
-        // El DTO puede traer String formateado o number (del backend viene number usualmente)
-        // Aseguramos formato $
-        let totalStr = dto.total;
-        if (typeof dto.total === 'number') {
-            totalStr = "$" + dto.total.toFixed(2);
-        } else if (!String(dto.total).includes('$')) {
-            totalStr = "$" + dto.total;
-        }
-        document.getElementById('ticketTotalUniversal').textContent = totalStr;
+        document.getElementById('ticketFechaUniversal').textContent = dto.fecha; // Ya viene formateado del backend?
+        document.getElementById('ticketMetodoPagoUniversal').textContent = dto.metodoPago || "Efectivo";
 
-        // 2. Llenar tabla
+        // 2. Llenar tabla items
         const tbody = document.getElementById('ticketItemsUniversal');
         tbody.innerHTML = '';
 
@@ -348,32 +343,92 @@ function initLoader() {
             const precioUnit = (typeof item.precioUnitario === 'number') ? item.precioUnitario.toFixed(2) : item.precioUnitario;
             const subtotal = (typeof item.subtotal === 'number') ? item.subtotal.toFixed(2) : item.subtotal;
 
+            let descHtml = '';
+            if (item.descuento && item.descuento > 0) {
+                descHtml = `<br><small class="text-danger">Desc: ${item.descuento}%</small>`;
+            }
+
             let fila = `
                 <tr>
-                    <td>${item.producto}</td>
-                    <td>${item.cantidad}</td>
-                    <td>$${precioUnit}</td>
-                    <td>$${subtotal}</td>
+                    <td class="ps-0">
+                        ${item.producto}
+                        ${descHtml}
+                    </td>
+                    <td class="text-center">${item.cantidad}</td>
+                    <td class="text-end">$${precioUnit}</td>
+                    <td class="text-end pe-0">$${subtotal}</td>
                 </tr>
             `;
             tbody.innerHTML += fila;
         });
 
-        // 3. Configurar comportamiento al cerrar
+        // 3. Totales (Usamos los valores calculados que vienen del DTO backend)
+        const subtotalGlobal = dto.subtotal || 0.0;
+        const totalDesc = dto.totalDescuento || 0.0;
+        const totalIva = dto.montoIva || 0.0;
+        const totalFinal = dto.total || 0.0;
+
+        document.getElementById('ticketSubtotalUniversal').textContent = subtotalGlobal.toFixed(2);
+
+        const rowDesc = document.getElementById('rowDescuentoUniversal');
+        if (totalDesc > 0) {
+            rowDesc.style.display = 'flex';
+            document.getElementById('ticketDescuentoUniversal').textContent = totalDesc.toFixed(2);
+        } else {
+            rowDesc.style.display = 'none';
+        }
+
+        document.getElementById('ticketIvaUniversal').textContent = totalIva.toFixed(2);
+        document.getElementById('ticketTotalUniversal').textContent = totalFinal.toFixed(2);
+
+        // 4. Info Transferencia
+        const secTrans = document.getElementById('infoTransferenciaTicketUniversal');
+        const imgComprobante = document.getElementById('ticketImgComprobanteUniversal');
+
+        if (dto.numeroTransferencia) {
+            secTrans.style.display = 'block';
+            document.getElementById('ticketRefTransferenciaUniversal').textContent = dto.numeroTransferencia;
+
+            if (dto.rutaComprobante) {
+                // Convertir ruta del sistema a ruta web
+                let ruta = dto.rutaComprobante;
+
+                // Si es una ruta absoluta del sistema (ej: C:\..., uploads\..., etc)
+                // la convertimos a la ruta web del endpoint
+                if (ruta.includes('\\') || ruta.includes('uploads')) {
+                    // Extraer solo el nombre del archivo
+                    const filename = ruta.split('\\').pop().split('/').pop();
+                    ruta = '/uploads/comprobantes/' + filename;
+                }
+
+                imgComprobante.src = ruta;
+                imgComprobante.style.display = 'block';
+
+                // Manejar error de carga
+                imgComprobante.onerror = function () {
+                    console.error('Error cargando imagen:', ruta);
+                    imgComprobante.style.display = 'none';
+                };
+            } else {
+                imgComprobante.style.display = 'none';
+            }
+        } else {
+            secTrans.style.display = 'none';
+        }
+
+        // 5. Configurar comportamiento al cerrar
         const btnCerrar = document.getElementById('btnCerrarTicketUniversal');
-        // Clonamos el botón para quitar listeners anteriores y evitar acumulaciones
+        // Clonamos el botón para quitar listeners anteriores
         const nuevoBtn = btnCerrar.cloneNode(true);
         btnCerrar.parentNode.replaceChild(nuevoBtn, btnCerrar);
 
         nuevoBtn.addEventListener('click', function () {
-            // Cerrar el modal bootstrap
-            // (Ya lo hace data-bs-dismiss, pero si hay callback extra...)
             if (callbackCierre) {
                 callbackCierre();
             }
         });
 
-        // 4. Mostrar Modal
+        // 6. Mostrar Modal
         const modalEl = document.getElementById('modalTicketUniversal');
         const modal = new bootstrap.Modal(modalEl);
         modal.show();

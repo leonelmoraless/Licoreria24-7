@@ -27,6 +27,9 @@ public class Producto {
     @Column(nullable = false)
     private Integer stock;
 
+    @Column(name = "descuento")
+    private Double descuento = 0.0;
+
     // Muchos productos pertenecen a UN proveedor
     // el fetch sirve para cargar automaticamente los datos del proveedor junto con
     // el producto
@@ -103,5 +106,13 @@ public class Producto {
         } else {
             return null;
         }
+    }
+
+    public Double getDescuento() {
+        return descuento;
+    }
+
+    public void setDescuento(Double descuento) {
+        this.descuento = descuento;
     }
 }
