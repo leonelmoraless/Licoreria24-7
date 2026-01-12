@@ -155,6 +155,14 @@
                 </li>
 
                 <li class="nav-item" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
+                    <a th:href="@{/analisis}" class="nav-link" data-bs-toggle="tooltip"
+                        data-bs-placement="right" title="Análisis de Ventas">
+                        <i class="bi bi-graph-up"></i>
+                        <span class="sidebar-text">Análisis</span>
+                    </a>
+                </li>
+
+                <li class="nav-item" sec:authorize="hasAnyAuthority('Administrador', 'Empleado')">
                     <a th:href="@{/clientes}" class="nav-link" data-bs-toggle="tooltip" data-bs-placement="right"
                         title="Clientes">
                         <i class="bi bi-bar-chart-fill"></i>

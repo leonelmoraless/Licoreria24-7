@@ -525,8 +525,7 @@ public class Facade {
     // GESTIÓN DE VENTAS
     // --------------------------------------------------------------------------------------
 
-    @Transactional(rollbackFor = Exception.class) // Importante: Se asegura que rollback en cualquier excepcion
-                                                  // (incluidas checked)
+    @Transactional(rollbackFor = Exception.class)
     public Venta registrarVenta(VentaPeticionDTO peticionVenta) throws Exception {
 
         // 1. Obtener Cliente
@@ -534,9 +533,10 @@ public class Facade {
         Cliente cliente = clienteRepositorio.findById(idCliente)
                 .orElseThrow(() -> new Exception("Cliente no encontrado con ID: " + idCliente));
 
-        // 2. Usar BUILDER para construir la venta compleja
+        // 2. Usar BUILDER para construir la venta compleja (con IVA)
         VentaBuilder builder = new VentaBuilder();
         builder.conCliente(cliente);
+        builder.conIva(peticionVenta.getIva());
 
         List<VentaPeticionDTO.ItemVentaDTO> items = peticionVenta.getItems();
         for (VentaPeticionDTO.ItemVentaDTO item : items) {
@@ -544,8 +544,8 @@ public class Facade {
             Producto producto = productoRepositorio.findById(idProducto)
                     .orElseThrow(() -> new Exception("Producto no encontrado: " + idProducto));
 
-            // El builder valida stock (Fail Fast) y calcula subtotales
-            builder.agregarDetalle(producto, item.getCantidad(), item.getPrecioUnitario());
+            // El builder valida stock (Fail Fast) y calcula subtotales con descuento
+            builder.agregarDetalle(producto, item.getCantidad(), item.getPrecioUnitario(), item.getDescuento());
         }
 
         Venta nuevaVenta = builder.construir();
@@ -558,18 +558,75 @@ public class Facade {
         MetodoPagoStrategy estrategia = contextoPago.obtenerEstrategia(metodoNombre);
         estrategia.procesarPago(ventaGuardada, ventaGuardada.getTotal());
 
-        // Guardamos el registro del pago simple para historial
+        // 5. Guardar el registro del pago (con datos de transferencia si aplica)
         if (metodoNombre != null && !metodoNombre.isEmpty()) {
-            Pago pago = new Pago(ventaGuardada, metodoNombre);
+            Pago pago;
+
+            if ("Transferencia".equalsIgnoreCase(metodoNombre)) {
+                // Guardar comprobante si se proporcionó
+                String rutaComprobante = null;
+                String comprobanteBase64 = peticionVenta.getComprobanteBase64();
+
+                if (comprobanteBase64 != null && !comprobanteBase64.isEmpty()) {
+                    rutaComprobante = guardarComprobanteTransferencia(comprobanteBase64, ventaGuardada.getIdVenta());
+                }
+
+                pago = new Pago(ventaGuardada, metodoNombre,
+                        peticionVenta.getNumeroTransferencia(),
+                        rutaComprobante);
+            } else {
+                pago = new Pago(ventaGuardada, metodoNombre);
+            }
+
             pagoRepositorio.save(pago);
         }
 
-        // 5. Notificar a OBSERVERS (Actualizar Inventario)
+        // 6. Notificar a OBSERVERS (Actualizar Inventario)
         for (ObservadorVenta observador : observadoresVentas) {
             observador.notificarVenta(ventaGuardada);
         }
 
         return ventaGuardada;
+    }
+
+    /**
+     * Guarda el comprobante de transferencia en el servidor
+     */
+    private String guardarComprobanteTransferencia(String base64Data, Long idVenta) {
+        try {
+            // Crear directorio si no existe
+            String uploadDir = "uploads/comprobantes";
+            java.nio.file.Path uploadPath = java.nio.file.Paths.get(uploadDir);
+            if (!java.nio.file.Files.exists(uploadPath)) {
+                java.nio.file.Files.createDirectories(uploadPath);
+            }
+
+            // Decodificar Base64
+            String base64Image = base64Data;
+            String extension = "png";
+
+            if (base64Data.contains(",")) {
+                String[] parts = base64Data.split(",");
+                base64Image = parts[1];
+                if (parts[0].contains("jpeg") || parts[0].contains("jpg")) {
+                    extension = "jpg";
+                }
+            }
+
+            byte[] imageBytes = java.util.Base64.getDecoder().decode(base64Image);
+
+            // Generar nombre único
+            String fileName = "comprobante_venta_" + idVenta + "_" + System.currentTimeMillis() + "." + extension;
+            java.nio.file.Path filePath = uploadPath.resolve(fileName);
+
+            // Guardar archivo
+            java.nio.file.Files.write(filePath, imageBytes);
+
+            return filePath.toString();
+        } catch (Exception e) {
+            System.err.println("Error al guardar comprobante: " + e.getMessage());
+            return null;
+        }
     }
 
     public List<Venta> obtenerTodasVentas() {

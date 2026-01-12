@@ -113,13 +113,15 @@ body {
    ========================================= */
 .sidebar {
     width: 250px;
-    min-height: 100vh;
+    height: 100vh;
     flex-shrink: 0;
     background-color: var(--bg-sidebar);
     border-right: 1px solid var(--border-color);
     transition: width 0.3s ease;
     overflow-x: hidden;
-    position: relative;
+    overflow-y: auto;
+    position: sticky;
+    top: 0;
     z-index: 1000;
 }
 

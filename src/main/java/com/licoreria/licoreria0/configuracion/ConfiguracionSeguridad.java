@@ -46,7 +46,7 @@ public class ConfiguracionSeguridad {
                                                 .requestMatchers("/productos/**", "/compras/**",
                                                                 "/historial-compras/**", "/ventas/**",
                                                                 "/historial-ventas/**", "/detalle_compra/**",
-                                                                "/detalle_venta/**", "/clientes/**")
+                                                                "/detalle_venta/**", "/clientes/**", "/analisis/**")
                                                 .hasAnyAuthority("Empleado", "Administrador")
 
                                                 // Paginas para el Administrador

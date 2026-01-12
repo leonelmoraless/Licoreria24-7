@@ -23,6 +23,9 @@ public class DetalleVenta {
 
     private Double precio;
 
+    @Column(name = "descuento")
+    private Double descuento = 0.0;
+
     public DetalleVenta() {
     }
 
@@ -31,6 +34,15 @@ public class DetalleVenta {
         this.producto = producto;
         this.cantidad = cantidad;
         this.precio = precio;
+        this.descuento = 0.0;
+    }
+
+    public DetalleVenta(Venta venta, Producto producto, Integer cantidad, Double precio, Double descuento) {
+        this.venta = venta;
+        this.producto = producto;
+        this.cantidad = cantidad;
+        this.precio = precio;
+        this.descuento = descuento != null ? descuento : 0.0;
     }
 
     public Long getIdDetalle() {
@@ -71,5 +83,22 @@ public class DetalleVenta {
 
     public void setPrecio(Double precio) {
         this.precio = precio;
+    }
+
+    public Double getDescuento() {
+        return descuento != null ? descuento : 0.0;
+    }
+
+    public void setDescuento(Double descuento) {
+        this.descuento = descuento != null ? descuento : 0.0;
+    }
+
+    /**
+     * Calcula el subtotal del detalle aplicando el descuento
+     */
+    public Double getSubtotalConDescuento() {
+        double subtotal = cantidad * precio;
+        double descuentoAplicado = subtotal * (getDescuento() / 100.0);
+        return subtotal - descuentoAplicado;
     }
 }

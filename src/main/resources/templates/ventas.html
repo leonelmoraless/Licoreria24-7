@@ -33,8 +33,32 @@
                                 <select id="selectMetodoPago" class="form-select">
                                     <option value="Efectivo">Efectivo</option>
                                     <option value="Tarjeta">Tarjeta</option>
-
+                                    <option value="Transferencia">Transferencia</option>
                                 </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="inputIva" class="form-label">IVA (%)</label>
+                                <input type="number" id="inputIva" class="form-control" value="15" min="0" max="100"
+                                    step="0.1" />
+                            </div>
+                        </div>
+                        <!-- Campos para Transferencia (ocultos por defecto) -->
+                        <div class="row mb-3" id="camposTransferencia" style="display: none;">
+                            <div class="col-md-4">
+                                <label for="inputNumeroTransferencia" class="form-label">Número de Transferencia</label>
+                                <input type="text" id="inputNumeroTransferencia" class="form-control"
+                                    placeholder="Ej: 123456789" />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="inputComprobante" class="form-label">Captura del Comprobante</label>
+                                <input type="file" id="inputComprobante" class="form-control" accept="image/*" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Vista Previa</label>
+                                <div id="previewComprobante"
+                                    style="max-width: 150px; max-height: 100px; overflow: hidden;">
+                                    <img id="imgPreview" src="" alt="" style="max-width: 100%; display: none;" />
+                                </div>
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -47,7 +71,7 @@
                             </div>
                         </div>
                         <div class="row align-items-end">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label for="ventaCantidad" class="form-label">Cantidad</label>
                                 <input type="number" id="ventaCantidad" class="form-control" value="1" min="1" />
                             </div>
@@ -55,6 +79,11 @@
                                 <label for="ventaPrecio" class="form-label">Precio Unitario</label>
                                 <input type="number" id="ventaPrecio" class="form-control" step="0.01" min="0"
                                     placeholder="0.00" readonly />
+                            </div>
+                            <div class="col-md-2">
+                                <label for="ventaDescuento" class="form-label">Descuento (%)</label>
+                                <input type="number" id="ventaDescuento" class="form-control" value="0" min="0"
+                                    max="100" step="0.5" />
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label d-block">&nbsp;</label>
@@ -80,15 +109,24 @@
                             <tr>
                                 <th>Producto</th>
                                 <th>Cantidad</th>
-                                <th>Precio Unitario</th>
+                                <th>Precio Unit.</th>
+                                <th>Desc. %</th>
                                 <th>Subtotal</th>
                                 <th>Eliminar</th>
                             </tr>
                         </thead>
                         <tbody id="carrito-ventas-body"></tbody>
                         <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-end">Subtotal:</td>
+                                <td id="carrito-subtotal" colspan="2">$0.00</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end">IVA (<span id="ivaPercent">15</span>%):</td>
+                                <td id="carrito-iva" colspan="2">$0.00</td>
+                            </tr>
                             <tr class="fs-5 fw-bold">
-                                <td colspan="3" class="text-end">TOTAL VENTA:</td>
+                                <td colspan="4" class="text-end">TOTAL VENTA:</td>
                                 <td id="carrito-ventas-total" colspan="2">$0.00</td>
                             </tr>
                         </tfoot>
@@ -109,8 +147,86 @@
     <script th:src="@{/js/ventas.js}"></script>
     <!-- Scripts (Incluidos desde menu.html) -->
     <div th:replace="~{menu :: scripts-comun}"></div>
+ main
+    <!-- Modal Ticket -->
+    <div class="modal fade" id="modalTicket" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-ticket">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">¡Venta Exitosa! 🛒</h5>
+                </div>
+
+                <div class="modal-body" id="areaImpresion">
+                    <div class="text-center mb-3">
+                        <h4>Licorería 24/7</h4>
+                        <p>Ticket de Venta #<span id="ticketId"></span></p>
+                    </div>
+
+                    <p><strong>Cliente:</strong> <span id="ticketCliente"></span></p>
+                    <p><strong>Fecha:</strong> <span id="ticketFecha"></span></p>
+
+                    <hr>
+
+                    <table class="table table-sm table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Prod.</th>
+                                <th class="text-end">Cant.</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticketItems">
+                        </tbody>
+                    </table>
+
+                    <hr>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Subtotal:</span>
+                        <span>$<span id="ticketSubtotal"></span></span>
+                    </div>
+                    <div class="d-flex justify-content-between text-danger">
+                        <span>Descuento:</span>
+                        <span>-$<span id="ticketDescuento"></span></span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>IVA:</span>
+                        <span>$<span id="ticketIva"></span></span>
+                    </div>
+                    <div class="d-flex justify-content-between fw-bold fs-5 mt-2">
+                        <span>TOTAL:</span>
+                        <span>$<span id="ticketTotal"></span></span>
+                    </div>
+
+                    <!-- Sección Transferencia -->
+                    <div id="infoTransferenciaTicket" style="display: none;" class="mt-3 border-top pt-2">
+                        <p class="fw-bold mb-1">Detalle Transferencia</p>
+                        <p class="mb-1">Ref: <span id="ticketRefTransferencia"></span></p>
+                        <div class="text-center">
+                            <p class="small text-muted mb-1">Comprobante:</p>
+                            <img id="ticketImgComprobante" src="" alt="Comprobante"
+                                style="max-width: 100%; max-height: 200px; border: 1px solid #ddd;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="imprimirTicket()">
+                        <i class="fas fa-print"></i> Imprimir
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="cerrarVenta()">
+                        Nueva Venta / Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Ticket Universal -->
     <div th:replace="~{menu :: modal-ticket-universal}"></div>
+ main
 </body>
 
 </html>
