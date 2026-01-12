@@ -203,7 +203,7 @@ class ProductoFactoryTest {
             productoFactory.crearProducto("Cerveza", 20.0, 15.0, 10, proveedorValido);
         });
 
-        assertEquals("El precio de venta no puede ser menor al precio de compra.", exception.getMessage());
+        assertEquals("El precio de venta no puede ser menor que el precio de compra.", exception.getMessage());
     }
 
     @Test

@@ -15,7 +15,8 @@ public class PagoTarjetaStrategy implements MetodoPagoStrategy {
         // if (monto > 100000) throw new RuntimeException("Monto excede limite de
         // tarjeta");
 
-        System.out.println("Procesando pago con TARJETA para la venta " + venta.getIdVenta() + " por monto: " + monto);
+        Long idVenta = (venta != null) ? venta.getIdVenta() : -1L;
+        System.out.println("Procesando pago con TARJETA para la venta " + idVenta + " por monto: " + monto);
     }
 
     @Override

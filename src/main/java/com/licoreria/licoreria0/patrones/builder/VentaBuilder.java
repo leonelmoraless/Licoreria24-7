@@ -45,7 +45,10 @@ public class VentaBuilder {
         return this;
     }
 
-    public Venta construir() {
+    public Venta construir() throws Exception {
+        if (this.venta.getCliente() == null) {
+            throw new Exception("No se puede crear una venta sin cliente.");
+        }
         this.venta.setTotal(this.totalAcumulado);
         return this.venta;
     }

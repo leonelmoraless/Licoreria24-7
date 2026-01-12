@@ -10,7 +10,8 @@ public class PagoEfectivoStrategy implements MetodoPagoStrategy {
     @Override
     public void procesarPago(Venta venta, double monto) {
         // Aqui podria ir logica adicional, como validar billetes, calcular cambio, etc.
-        System.out.println("Procesando pago en EFECTIVO para la venta " + venta.getIdVenta() + " por monto: " + monto);
+        Long idVenta = (venta != null) ? venta.getIdVenta() : -1L;
+        System.out.println("Procesando pago en EFECTIVO para la venta " + idVenta + " por monto: " + monto);
     }
 
     @Override

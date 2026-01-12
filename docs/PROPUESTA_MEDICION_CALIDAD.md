@@ -39,13 +39,24 @@ Según **CMMI-DEV**, definimos criterios objetivos para evaluar cada funcionalid
 | **Registro de Ventas** | Tests End-to-End (`ControladorCompra`) | Cálculo exacto de subtotales y totales; reducción inmediata de stock. |
 | **Seguridad** | Tests de Seguridad (`TestSecurityConfig`) | Accesos no autorizados son bloqueados (403/401) en producción. |
 
-### 3.2. Métricas de Calidad del Producto
-Para hacer la calidad "medible", utilizaremos los siguientes indicadores (KPIs):
+### 3.2. Métricas de Calidad del Producto (Indicadores Clave)
+Para medir qué tan bueno es nuestro software con números reales, usamos estos indicadores:
 
-1.  **Densidad de Defectos:** (Nº de Bugs Encontrados / KLOC - Miles de Líneas de Código). *Meta: < 0.5 por KLOC.*
-2.  **Cobertura de Pruebas (Test Coverage):** Porcentaje de código ejecutado por los tests. *Meta: > 80%.*
-3.  **Tasa de Éxito de Pruebas (Pass Rate):** `(Tests Exitosos / Total Tests) * 100`. *Actual: 100% (59/59).*
-4.  **Estabilidad del Build:** Porcentaje de construcciones (`mvn package`) exitosas en el primer intento.
+1.  **Densidad de Errores (¿Qué tan limpio es el código?):**
+    *   *Qué mide:* Cuántos errores (bugs) encontramos por cada 1,000 líneas de código.
+    *   *Objetivo:* Menos de 0.5 errores. (Significa que es muy estable).
+
+2.  **Cobertura de Pruebas (¿Cuánto código probamos?):**
+    *   *Qué mide:* El porcentaje de nuestro código que es ejecutado y verificado por los tests automáticos.
+    *   *Objetivo:* Más del 80%. (Significa que casi todo el código ha sido verificado).
+
+3.  **Tasa de Éxito de Pruebas (¿Funciona lo que probamos?):**
+    *   *Qué mide:* De todas las pruebas que ejecutamos, ¿cuántas pasaron exitosamente?
+    *   *Resultado Actual:* **100%** (137 pruebas exitosas de 137). ¡Excelente resultado!
+
+4.  **Estabilidad de Compilación (¿El proyecto funciona al armarlo?):**
+    *   *Qué mide:* Si el proyecto se puede compilar y empaquetar (`mvn package`) sin errores a la primera.
+    *   *Objetivo:* 100% de éxito en la compilación.
 
 ---
 
